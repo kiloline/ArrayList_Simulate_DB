@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.logging.log4j:log4j:RELEASE">
+    <CLASSES>
+      <root url="jar://D:/Program Files Uninstall/Developer Kits/apache-maven-3.5.0/LocalRepository/org/apache/logging/log4j/log4j/RELEASE/log4j-RELEASE.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/Program Files Uninstall/Developer Kits/apache-maven-3.5.0/LocalRepository/org/apache/logging/log4j/log4j/RELEASE/log4j-RELEASE-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/Program Files Uninstall/Developer Kits/apache-maven-3.5.0/LocalRepository/org/apache/logging/log4j/log4j/RELEASE/log4j-RELEASE-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

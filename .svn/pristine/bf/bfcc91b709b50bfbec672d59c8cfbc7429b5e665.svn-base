@@ -1,0 +1,110 @@
+package Data.Numeral_Calculations;
+
+import Data.Verticaltype.Vertical_Node;
+import Data.Vessel.Word;
+import Utils.Math.DoubleNumber;
+import Utils.Math.Simple_Calculation;
+import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
+
+public class Evaluate {
+    Map.Entry e;
+    Number n;
+    Stack<Number> ops=new Stack<>();
+    Stack<String> mark=new Stack<>();
+    HashMap<String,Integer> marklevel1;//for +-
+    HashMap<String,Integer> marklevel2;//for x/
+    HashMap<String,Integer> marklevel3;//for Exponentiation
+    HashMap<String,Integer> marklevel4;//for Modulo operation
+    HashMap<String,Integer> marklevel5;//for other math function
+    ArrayList<DefaultMapEntry<Integer,Integer>> marklevel6;//for ()
+
+    public void pushElement(Word word)
+    {
+        switch(word.getName())
+        {
+            case "Double":
+                ops.push(Double.parseDouble(word.getSubstance()));
+                break;
+            case "Integer":
+                ops.push(Integer.parseInt(word.getSubstance()));
+                break;
+            case "String"://目前不对String直接转换
+            case "(":
+                break;
+            case ")":
+                //Single_step_calculation();
+                break;
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+            case "%":
+            case "^":
+                mark.push(word.getName());
+                break;
+        }
+    }
+    public void pushElement(Vertical_Node node)//按照数据表中列的类型压入数据，不接受外来类型
+    {
+        switch(node.getTrueType())
+        {
+            case "java.lang.Double":
+                ops.push((Double)node.getelement());
+                break;
+            case "java.lang.Integer":
+                ops.push((Integer)node.getelement());
+                break;
+            case "java.lang.String":
+                break;
+        }
+    }
+    private void Single_step_calculation()
+    {
+        Number rightnum,leftnum,result;
+        String mark;
+        rightnum=ops.pop();
+        //leftnum=ops.pop();
+        mark=this.mark.pop();
+
+        switch(mark)
+        {
+            case "+":
+//                result=Math.addExact(leftnum,rightnum);//leftnum,rightnum;
+                leftnum=ops.pop();
+                result=Simple_Calculation.add(leftnum,rightnum);
+                break;
+            case "-":
+                leftnum=ops.pop();
+                result=Simple_Calculation.minus(leftnum,rightnum);
+                break;
+            case "*":
+                leftnum=ops.pop();
+                result=Simple_Calculation.multi(leftnum,rightnum);
+                break;
+            case "/":
+                leftnum=ops.pop();
+                result=Simple_Calculation.div(leftnum,rightnum);
+                break;
+            default:
+                result=rightnum;
+        }
+
+        ops.push(result);
+    }
+
+    public Number getthisEvaluate() throws Exception {
+        while(!mark.empty()){
+            Single_step_calculation();
+        }
+
+        if(ops.size()!=1)
+            throw new Exception();
+        else
+            return ops.pop();
+    }
+}
