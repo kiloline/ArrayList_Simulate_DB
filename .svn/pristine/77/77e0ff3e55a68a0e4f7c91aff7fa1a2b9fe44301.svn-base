@@ -1,0 +1,273 @@
+package Data.classes;
+
+import m_Exception.data.hVlength_error;
+import m_Exception.data.EachListlength_error;
+import m_Exception.data.NLlength_error;
+import Utils.Check.check_StringtoNumber;
+import Data.Verticaltype.Vertical_column_old;
+import Data.Vessel.TableMapping;
+import Service.Handling.table_handling;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import m_Exception.*;
+
+/**
+ * @author rkppo
+ * table�ṹӦ���ǵݹ�ģ���������select��ʱ��ͨ���׳�һ��table��ķ�ʽ���Ƕ�ײ�ѯ�����Ӳ�ѯ
+ * ���table���б�������ܹ�������ӡ�������������ݵķ�����print()�������Ʒ���
+ * ��Ҫ��������������ķ�����setTable(),�÷���ͬʱ��֤loaddatafile��ʵʱ�����ļ�����
+ */
+/*
+* ����Ա�Ĳ���ʧ�ܣ�������лع���������ôĿǰ��򵥵İ취���ȶԱ������ƣ�Ȼ��Ը��Ʊ���в�����
+* һ�����ִ����������ٸ��Ʊ��˻�ԭ��������ϸ���ȵĽ��лع�������
+*/
+public class Table implements Serializable{
+    private String tablename;
+    private int Size, mem;
+    //Size���Ѿ�ʹ�õĿռ䣬mem�Ƿ��������
+    //String[] listnames;
+    private LinkedList<String> listnames;
+    //�����е������Լ�αָ��
+    //��������������б����ڱ���ԭʼ������˳��
+    private TableMapping<String, String, Vertical_column_old> tm;
+    private check_StringtoNumber CSN;
+
+    public Table(String tablename, String[] listname, String[] listtype) throws Exception {
+        listnames = new LinkedList<>();
+        tm = new TableMapping<>();
+        if (listname.length != listtype.length)  //��������������������������ȵĻ�һ��������
+            throw new NLlength_error();
+
+        this.tablename = tablename;
+        String type = "String";
+        for (int loop = 0; loop < listname.length; loop++) //�����ݹ����Ľ�����������ת�����ڴ�ṹ
+        {
+            switch (listtype[loop]) {
+                case "int":
+                    type = "Integer";
+                    break;
+                case "double":
+                    type = "Double";
+                    break;
+                case "string":
+                    type = "String";
+                    break;
+            }
+            listnames.add(listname[loop]);
+            tm.put(listname[loop], type, table_handling.getVertical_column(listtype[loop]));
+            //tm.put(listname[loop], type, table_handling.getVertical_column(listtype[loop]));
+            //hashtable.put(listname[loop],new Assemble(type,service.getVertical_column(listtype[loop])));
+        }
+        Size = 0;
+        mem = 1;
+    }
+
+    private Table(String tablename, String[] ln, String[] lt, Vertical_column_old[] verticals) throws Exception//�����Table���ڲ�ʹ�õ���ʽ������
+    {
+//����setTable()
+        if (ln.length != verticals.length || ln.length != lt.length)
+            throw new hVlength_error();
+        for (int loop = 1; loop < verticals.length; loop++) {
+            if (verticals[0].getSize() != verticals[loop].getSize())
+                throw new EachListlength_error();
+        }
+        listnames = new LinkedList<>();
+        tm = new TableMapping<>();
+        for (int loop = 0; loop < verticals.length; loop++) {
+            listnames.add(ln[loop]);
+            tm.put(ln[loop], lt[loop], verticals[loop]);
+        }
+        this.tablename = tablename;
+        this.Size = verticals[0].getSize();
+        this.mem = verticals[0].getMem();
+        if (mem == 0)
+            mem++;
+        //service=handling;//δ��ֵ�����Ի���Ҫsethandling()����ɸ�ֵ��
+    }
+
+    private Table(int size, int mem, LinkedList<String> ln, TableMapping<String, String, Vertical_column_old> TM) {
+        tablename = "linktable";
+        Size = size;
+        this.mem = mem;
+        listnames = ln;
+        tm = TM;
+    }
+
+    @Override
+    public String toString() {
+        return this.tablename;
+    }
+
+    @Override
+    public boolean equals(Object o) {//�ú�����֤����Table֮����������Ƿ�һһ��Ӧ����ͬ
+        if (o.getClass().getName().equals(this.getClass().getName())) {
+            Table t = (Table) o;
+            String[] ta1, ta2;
+            ta1 = this.getTableMapping().getAttributes(listnames.toArray(new String[0]));
+            ta2 = t.getTableMapping().getAttributes(t.getListOrder().toArray(new String[0]));
+            if (ta1.length != ta2.length)
+                return false;
+            for (int loop = 0; loop < ta1.length; loop++)
+                if (!ta1[loop].equals(ta2[loop]))
+                    return false;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Table clone() {//���ǻ���Java Stream����ƣ���Ҫ�Ķ�����������ö���ʵ��Serializable�ӿ�
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        ObjectOutputStream oo = null;
+        try {
+            oo = new ObjectOutputStream(bo);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        try {
+            oo.writeObject(this);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        //�����������
+        ByteArrayInputStream bi = new ByteArrayInputStream(bo.toByteArray());
+        ObjectInputStream oi = null;
+        try {
+            oi = new ObjectInputStream(bi);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        try {
+            return (Table) oi.readObject();
+        } catch (IOException e1) {
+            return null;
+        } catch (ClassNotFoundException e1) {
+            return null;
+        }
+        //return new Table(Size,mem, (LinkedList<String>) this.listnames.clone(),tm.clone());
+    }
+
+    public int getMem() {
+        return mem;
+    }
+
+    public int getSize() {
+        return Size;
+    }
+
+    public static Table setTable(String tablename, String[] ln, String[] lt, Vertical_column_old[] verticals) throws Exception {
+        return new Table(tablename, ln, lt, verticals);
+    }
+
+    public TableMapping<String, String, Vertical_column_old> getTableMapping() {
+        return tm;
+    }
+
+    public LinkedList<String> getListOrder() {
+        return listnames;
+    }
+
+    public void printTable(int listsize)//�����ű���ȫ��ӡ����
+    {//��˵�selectӦ�������������
+        //listsize��ÿ�е�Ĭ�Ͽ��
+        System.out.println();
+        int loop;
+        Vertical_column_old[] key = new Vertical_column_old[this.tm.size()];
+        StringBuilder tempBuffer = new StringBuilder();
+
+        tempBuffer.append('|');
+        for (loop = 0; loop < this.tm.size(); loop++) {//��ӡ������
+            String temps = this.listnames.get(loop);
+            tempBuffer.append(temps);
+            if (temps.length() >= listsize)
+                ;
+            else
+                for (int loopi = 0; loopi < listsize - temps.length(); loopi++)
+                    tempBuffer.append(' ');
+            tempBuffer.append('|');
+
+            key[loop] = this.tm.getData(temps);//��ǰ������ѹ��key������
+        }
+        System.out.println(tempBuffer.toString());
+
+        for (int loopo = 0; loopo < Size; loopo++) {
+            tempBuffer.setLength(0);//�ݲ��ԣ��÷������������String���������ķ���
+            tempBuffer.append('|');
+            for (loop = 0; loop < this.tm.size(); loop++) {
+                int elementlength;
+                try {
+                    elementlength = key[loop].getindex_element(loopo).toString().length();
+                    //��Ϊ�п���������ָ�루null��������ֵ������Ҫ��try-catch�������쳣
+                } catch (Exception e) {
+                    tempBuffer.append("null");
+                    for (int loopi = 0; loopi < listsize - 4; loopi++)
+                        tempBuffer.append(' ');
+                    tempBuffer.append('|');
+                    continue;
+                }
+                if (elementlength == 0)//��ʱ�����ַ��������null
+                {
+                    tempBuffer.append("null");
+                    for (int loopi = 0; loopi < listsize - 4; loopi++)
+                        tempBuffer.append(' ');
+                    tempBuffer.append('|');
+                    continue;
+                } else if (elementlength >= listsize)
+                    tempBuffer.append(new String(key[loop].getindex_element(loopo).toString().toCharArray(), 0, listsize - 3) + "...");
+                else {
+                    tempBuffer.append(key[loop].getindex_element(loopo));
+                    for (int loopi = 0; loopi < listsize - key[loop].getindex_element(loopo).toString().length(); loopi++)
+                        tempBuffer.append(' ');
+                }
+                tempBuffer.append('|');
+            }
+            System.out.println(tempBuffer.toString());
+        }
+        System.out.println();
+    }
+
+    public void reSize(int newSize) {
+        this.Size = newSize;
+    }
+
+    public void realloc() throws OutofMemory_error//����Ҫ���󣬻�Ҫ�ܼ�С
+    {
+        try {
+            if (this.Size >= this.mem && this.mem < Integer.MAX_VALUE)
+                this.mem = Double.valueOf(mem + Math.log(Math.pow(mem, 40)) + 100).intValue();//���ݹ�ʽ
+            else if (this.Size == this.mem)//this.mem==Integer.MAX_VALUE,java�������ȳ���2^32���������
+                throw new OutofMemory_error();
+            else if (this.Size <= this.mem * 0.75 && this.mem != 1)//���ݹ�ʽ
+                this.mem = Double.valueOf(this.mem * 0.75).intValue() + 1;
+            else
+                return;
+        } catch (Exception e) {
+            throw new OutofMemory_error();
+        }
+        Iterator<? extends Vertical_column_old> toRealloc = this.tm.DataIterator();
+        while (toRealloc.hasNext()) {
+            try {
+                toRealloc.next().realloc(this.mem);
+            } catch (Exception ex) {
+                throw new OutofMemory_error();
+            }
+        }
+    }
+
+    public List<String> checkselectlist(String[] s_vertical) {
+        ArrayList<String> Return = new ArrayList<>();
+        for (int loop = 0; loop < s_vertical.length; loop++) {
+            if (this.listnames.size() < 20) {
+                if (listnames.indexOf(s_vertical[loop]) != -1)
+                    Return.add(s_vertical[loop]);
+            } else if (this.tm.getAttribute(s_vertical[loop]) != null)
+                Return.add(s_vertical[loop]);
+        }
+        return Return;
+    }
+}

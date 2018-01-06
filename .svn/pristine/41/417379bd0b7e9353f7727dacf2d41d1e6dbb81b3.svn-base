@@ -1,0 +1,171 @@
+package Service.Language_disposer;
+
+import Data.Vessel.Clause_Word_List;
+import Data.Vessel.Word;
+import Data.classes.Language_node;
+import Utils.Check.check_regular;
+
+import java.util.*;
+
+/**
+ * 使用反向倒转来表示一对多关系，即Key、Value位置反转
+ */
+public class Word_Grammar_unit {
+    private check_regular CR;
+    private LinkedList<String> markstack;
+    private HashMap<String,Language_node> word_Map;
+    private List<HashMap<String,String>> Grammar_unit;
+    private LinkedList<String> bracketstack;//括号匹配栈，专用于嵌套子句
+    private LinkedList<Word> LW;
+    private boolean word_Add_Deflection;
+
+    public Word_Grammar_unit(HashMap<String,Language_node> word_Map,List<HashMap<String,String>> Grammar_unit)
+    {
+        this.word_Map=word_Map;
+        this.Grammar_unit=Grammar_unit;
+        markstack=new LinkedList<>();
+        bracketstack=new LinkedList<>();
+        word_Add_Deflection=false;
+    }
+    public LinkedList<Word> set_Word_Grammar_unit(LinkedList<Word> words)
+    {
+        LW=new LinkedList<>();
+        for(Iterator<Word> wordIterator = words.listIterator();wordIterator.hasNext();)
+        {
+            Word word=wordIterator.next();
+            if(word_Map.get(word.getName())!=null)//判断是否为关键字
+            {
+                if(!word.isMark())
+                    markstack.add(word.getName());
+                if(word.getName().equals("\'"))
+                {
+                    word=wordIterator.next();
+                    if(word.getName().equals("String"))
+                    {
+                        wordIterator.next();
+                    }
+                }
+                else if(word.getName().equals("("))
+                {
+                    if(markstack.getLast().equals("from"))
+                    {//位于from后出现的括号必然是
+                        Clause_Word_List cwltemp=new Clause_Word_List(word.getLocal()[0],word.getLocal()[1]);
+                        bracketstack.add("(");
+                        word_Add_Deflection=true;
+                    }
+                    //以后可能添加where下的嵌套子句，但是现在不加入，只靠from也能完成大部分功能
+                }
+            }
+            else
+                switch(check_regular.regular(word.getName()))
+                {//number的正负号要处理一下
+                    case "isInteger":{
+                        word.setSubstance(isnumber_process()+word.getName());
+                        word.setName("Integer");
+                        break;
+                    }
+                    case "isDouble":{
+                        word.setSubstance(isnumber_process()+word.getName());
+                        word.setName("Double");
+                        break;
+                    }
+                    case "isListName":{//newlistname
+                        word.setSubstance(word.getName());
+                        if(LW.getLast().getName().equals("L_name"))
+                            word.setName("newL_name");
+                        else if(LW.getLast().getName().equals("T_name"))//尚未包含嵌套子句的识别
+                            word.setName("newT_name");
+                        else switch (markstack.getLast()) {
+                            case "update":
+                            case "table":
+                                word.setName("T_name");
+                                break;
+                            case "tablespace":
+                                word.setName("TS_name");
+                                break;
+                            default:
+                                word.setName("L_name");
+                                break;
+                        }
+                        break;
+                    }
+                    case "isTLName":{//newtablename
+                        String tl[]=word.getName().split(".");
+                        int[] index=word.getLocal();
+                        switch (markstack.getLast()) {
+                            case "table":
+                            case "update":
+                            case "into":
+                            case "from":
+                                add_Word(new Word("TS_name", tl[0], index[0], index[1], false));
+                                add_Word(new Word(".", null, index[0], index[1] + tl[0].length(), false));
+                                word = new Word("T_name", tl[1], index[0], index[1] + tl[0].length() + 1, false);
+                                break;
+                            default:
+                                add_Word(new Word("T_name", tl[0], index[0], index[1], false));
+                                add_Word(new Word(".", null, index[0], index[1] + tl[0].length(), false));
+                                word = new Word("L_name", tl[1], index[0], index[1] + tl[0].length() + 1, false);
+                                break;
+                        }
+                        break;
+                    }
+                    case "isTSTLName":{
+                        String tl[]=word.getName().split(".");
+                        int[] index=word.getLocal();
+                        int list=index[1];
+                        add_Word(new Word("TS_name",tl[0],index[0],list,false));
+                        add_Word(new Word(".",null,index[0],list+tl[0].length(),false));
+                        add_Word(new Word("T_name",tl[1],index[0],list+tl[0].length()+1,false));
+                        add_Word(new Word(".",null,index[0],list+tl[0].length()+tl[1].length(),false));
+                        word=new Word("L_name",tl[2],index[0],list+tl[0].length()+tl[1].length()+2,false);
+                        break;
+                    }
+                }
+            add_Word(word);
+        }
+        return LW;
+    }
+
+    private void add_Word(Word word)
+    {
+        if(word_Add_Deflection){
+
+        }
+        else {
+            fugue(word);
+            LW.add(word);
+        }
+    }
+
+    private void fugue(Word word)
+    {
+        for(HashMap<String,String> unit:Grammar_unit)
+        {
+            if(unit.get(word.getName())!=null) {
+                word.setType(unit.get(word.getName()));
+                return;
+            }
+        }
+        word.setType(word.getName());
+    }
+
+    private String isnumber_process()//确定number的正负号
+    {
+        String nummark=LW.getLast().getName();
+        String fronttype=LW.get(LW.size()-2).getType();
+        if(nummark.equals("+")||nummark.equals("-"))
+        {
+            switch(fronttype)
+            {
+                case "Class_name":
+                case "Var":
+                    break;
+                default:
+                    LW.removeLast();
+            }
+        }
+        else
+            nummark="";
+        return nummark;
+    }
+}

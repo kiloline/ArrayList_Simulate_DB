@@ -1,0 +1,439 @@
+package Service.Handling;
+
+import message.ArrayList_Simuiate;
+import Data.classes.Table;
+import Utils.Check.check_StringtoNumber;
+import Data.Verticaltype.Vertical_Double;
+import Data.Verticaltype.Vertical_Integer;
+import Data.Verticaltype.Vertical_String;
+import Data.Verticaltype.Vertical_column_old;
+import Data.Vessel.ExecutePlan_Package;
+import Data.Vessel.TableMapping;
+import Service.Handling.LinkTable.unionLinkHandling;
+import Service.Handling.trans.Transelementtype;
+import Service.Service;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import m_Exception.Language_error;
+import m_Exception.data.HaveNoListName_error;
+import m_Exception.NullTypePoint_error;
+import m_Exception.OutofMemory_error;
+import m_Exception.data.*;
+import m_Exception.type.Type_not_exist;
+
+/**
+ *
+ * @author rkppo
+ */
+public class table_handling 
+{
+    static Transelementtype trans=new Transelementtype();
+    LinkedList<TableMapping> stack_list;
+    check_StringtoNumber CSN;
+    TableMapping<String,String,Vertical_column_old> list;
+    Service backstage;
+    Table thisTable;
+    int listsize;
+    public table_handling(Service server,check_StringtoNumber csn)
+    {
+        this.listsize = 15;
+        list=null;
+        CSN=csn;
+        stack_list=new LinkedList<>();
+        backstage=server;
+    }
+    public void setlistsize(int length)
+    {
+        listsize=length;
+    }
+    public void setData(TableMapping<String,String,Vertical_column_old> map)
+    {
+        stack_list.addFirst(list);
+        list=map;
+    }
+    public void cleanData()
+    {//Ϊ��һ�θ�������׼��
+        list=stack_list.getFirst();
+    }
+    public static Vertical_column_old getVertical_column(String vertical_name) throws NullTypePoint_error
+    {   //Ŀǰֻ֧��int��double��String��������
+        switch (vertical_name) 
+        {
+            case "int":case "Integer":
+                return new Vertical_Integer("Integer");
+            case "double":case "Double":
+                return new Vertical_Double("Double");
+            case "string":case "String":
+                return new Vertical_String("String");
+            default:
+                throw new NullTypePoint_error();
+        }
+    }
+    
+    public Vertical_column_old setVertical_column(String[] vertical_nodes,String vertical_name) throws NullTypePoint_error, Type_not_exist
+    {   //Ŀǰֻ֧��int��double��String��������
+        //table_handling th=new table_handling(backstage,new check_StringtoNumber());
+        switch (vertical_name) 
+        {
+            case "int":case "Integer":
+                return new Vertical_Integer(trans.typetransverter2Array(vertical_nodes,vertical_name).toArray(new Integer[0]),"Integer");
+            case "double":case "Double":
+                return new Vertical_Double(trans.typetransverter2Array(vertical_nodes,vertical_name).toArray(new Double[0]),"Double");
+            case "string":case "String":
+                return new Vertical_String(vertical_nodes,"String");
+            default:
+                throw new NullTypePoint_error();
+        }
+    }
+    
+    @ArrayList_Simuiate
+    public synchronized void Implement_Plan(ExecutePlan_Package EPP) throws Exception
+    {
+        switch(EPP.getCommand())
+        {
+            case "show":
+                for(String s:EPP.getShow())
+                    switch(s)
+                    {
+                        case "dbtree":
+                            backstage.call_FileSystem().printDBTree();
+                            break;
+                        case "memory_use":
+                        case "cpu_use":
+                            throw new Exception("�ù��ܣ�"+s+"��ִ�в��ֻ�û�н����");
+                        case "dbmsg":
+                            System.out.println(ArrayList_Simuiate.Author);
+                    };
+                break;
+            case "commit":
+                backstage.call_FileSystem().saveTable();
+                break;
+            case "create":
+            {
+                switch(EPP.getCreateType())//������switch������Ϊ�Ժ���ܻ�Ҫ�½���Ķ�������ֻ��table��tablespace
+                {
+                    case "table":
+                    {
+                        String[] pop=EPP.popClasses();
+                        LinkedList<String[]> E=EPP.getCreate();
+                        Table table=new Table(pop[1],E.get(0),E.get(1));
+                        backstage.call_FileSystem().add_table(pop[0], table);
+                        break;
+                    }
+                    case "tablespace":
+                    {
+                        String[] pop=EPP.popClasses();
+                        backstage.call_FileSystem().add_tablespace(pop[0]);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "drop":
+            {
+                switch(EPP.getCreateType())
+                {
+                    case "table":
+                    {
+                        String[] pop=EPP.popClasses();
+                        backstage.call_FileSystem().del_table(pop[0], pop[1]);
+                        break;
+                    }
+                    case "tablespace":
+                    {
+                        String[] pop=EPP.popClasses();
+                        backstage.call_FileSystem().del_tablespace(pop[0]);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "select":
+            {
+                Table selectTable;
+                LinkedList<String[]> E=EPP.get_select();
+                String[] classes=EPP.popClasses();
+                thisTable=backstage.call_FileSystem().getTable(classes[0], classes[1]);
+                selectTable=select(thisTable,E.get(0), E.get(1), E.get(2), E.get(3), E.get(4), E.get(5));
+                if(EPP.checkunion())
+                {
+                    LinkedList<ExecutePlan_Package> union=EPP.getunionEPP();
+                    for(int loop=0;loop<union.size();loop++)
+                    {
+                        LinkedList<String[]> UE=union.get(loop).get_select();
+                        String[] Uclasses=union.get(loop).popClasses();
+                        Table toUnion=backstage.call_FileSystem().getTable(Uclasses[0], Uclasses[1]);
+                        Table unionTable=select(toUnion,UE.get(0), UE.get(1), UE.get(2), UE.get(3), UE.get(4), UE.get(5));
+                        List<String> u=unionTable.getListOrder();
+                        List<String> s=selectTable.getListOrder();
+                        if(u.size()!=s.size())
+                            throw new Language_error("ǰ�����ű��union��������һ�£�");
+                        for(int loopi=0;loopi<u.size();loopi++)
+                        {
+                            if(!unionTable.getTableMapping().getAttribute(u.get(loopi)).equals(selectTable.getTableMapping().getAttribute(s.get(loopi))))
+                                throw new Language_error("��"+loopi+"�е����Ͳ�һ�£������������"+selectTable.getTableMapping().getAttribute(s.get(loopi))+"�������������"+unionTable.getTableMapping().getAttribute(u.get(loopi))+"��");
+                        }
+                        selectTable=unionLinkHandling.UnionLink(selectTable, unionTable);
+                    }
+                    //throw new Exception("�ù��ܣ�union��ִ�в��ֻ�û�н����");
+                }
+                selectTable.printTable(listsize);
+                break;
+            }
+            case "insert":
+            {
+                LinkedList<String[]> E=EPP.get_insert();
+                String[] classes=EPP.popClasses();
+                thisTable=backstage.call_FileSystem().getTable(classes[0], classes[1]);
+                insert(E.get(0), E.get(1));
+                backstage.call_FileSystem().changestatus(classes[0], classes[1]);
+                break;
+            }
+            case "delete":
+            {
+                LinkedList<String[]> E=EPP.get_delete();
+                String[] classes=EPP.popClasses();
+                thisTable=backstage.call_FileSystem().getTable(classes[0], classes[1]);
+                delete(E.get(0), E.get(1), E.get(2), E.get(3));
+                backstage.call_FileSystem().changestatus(classes[0], classes[1]);
+                break;
+            }
+            case "update":
+            {
+                LinkedList<String[]> E=EPP.get_update();
+                String[] classes=EPP.popClasses();
+                thisTable=backstage.call_FileSystem().getTable(classes[0], classes[1]);
+                update(E.get(0), E.get(1), E.get(2), E.get(3), E.get(4), E.get(5));
+                backstage.call_FileSystem().changestatus(classes[0], classes[1]);
+                break;
+            }
+            case "alter":
+            {
+                String alterype=EPP.getCreateType();
+                LinkedList<String[]> E=EPP.get_Alter();
+                String[] classes=EPP.popClasses();
+                thisTable=backstage.call_FileSystem().getTable(classes[0], classes[1]);
+                alter(alterype,E.get(0),E.get(1));
+                backstage.call_FileSystem().changestatus(classes[0], classes[1]);
+                break;
+            }
+        }
+    }
+    
+    public Integer[] Where_find(String[] linkmark,String[] c_vertical,String[] s_condition,String[] e_condition) throws HaveNoListName_error, Type_not_exist, Exception 
+    {//���ҷ���where�������к�
+        checkListname_beingness(c_vertical);
+        
+        Vertical_column_old toSelect;
+        List<ArrayList<Integer>> Results=new LinkedList<>();
+        Integer[] samelocal = null;//���յ�where����ѡ������Ľ��
+        for(int loop=0;loop<c_vertical.length;loop++)
+        {
+            toSelect=list.getData(c_vertical[loop]);
+            ArrayList<Integer> selectresult1;
+            selectresult1=toSelect.Pick_Condition(s_condition[loop],trans.typetransverter(e_condition[loop],list.getAttribute(c_vertical[loop])));
+            Results.add(selectresult1);//�����������ҵ����з����������кţ�������Results����
+        }
+        LinkedList<Integer> set=new LinkedList<>(Results.get(0));
+        for(int loop=1;loop<Results.size();loop++)
+        {//���ݵ�һ�����صĽ����ʼȥ��
+            if(linkmark[loop-1].equals("or"))
+                set.addAll(Results.get(loop));
+            else if(linkmark[loop-1].equals("and"))
+                set.retainAll(Results.get(loop));
+        }
+        samelocal=set.toArray(new Integer[0]);
+        return samelocal;
+    }
+    public Vertical_column_old[] Vertical_checkout(String[] listnames,String[] newnames,Integer[] LineNumber)
+    {//���ָ���кš�ָ���е�������������µ�Vertical����
+        //Vertical_column[] a=new Vertical_column[0];
+        String listname;
+        LinkedList<Vertical_column_old> result=new LinkedList<>();
+        for(int loop=0;loop<listnames.length;loop++)
+        {
+            listname=newnames[loop];
+            result.add(list.getData(listnames[loop]).checkout(listname, LineNumber));
+        }
+        return result.toArray(new Vertical_column_old[0]);
+    }
+    public boolean checkListname_beingness(String... listnames) throws HaveNoListName_error
+    {
+        for(int loop=0;loop<listnames.length;loop++)
+        {//�������ҵ����ڵ�ǰ���Ƿ���ڣ���һ�����������׳��쳣
+            String t=listnames[loop];
+            t=list.getAttribute(t);
+            if(t==null)
+                throw new HaveNoListName_error(listnames[loop]);
+        }
+        return true;
+    }
+    
+    public void insert(String[] s_vertical,String[] insertion_sequence) throws ILlength_error, HaveNoListName_error, OutofMemory_error, Type_not_exist //() into tablename values()
+    {
+        int Size=thisTable.getSize();
+        TableMapping<String,String,Vertical_column_old> TableMap=thisTable.getTableMapping();
+        if(s_vertical==null)
+            s_vertical=thisTable.getListOrder().toArray(new String[0]);
+        
+        if(insertion_sequence.length!=s_vertical.length)
+            throw new ILlength_error();
+        setData(TableMap);
+        checkListname_beingness(s_vertical);
+        cleanData();
+        thisTable.reSize(Size+1);
+        thisTable.realloc();
+        LinkedList<String> lnList=new LinkedList<>(TableMap.keySet());
+        //for(int loop=0;loop<s_vertical.length;loop++)
+            //�����������ѭ����ʽ�Ļ�����Ȼ���±��и����еĳ��Ȳ�һ�£���Щ�н�����insert����һЩ��û�н���insert����
+            //���뽫�������е��ж�ѭ��һ�Σ�����Ҫע��s_vertical���е�˳���ԭ����˳��δ����ͬ��
+            //�Ժ���ɵ��µ�Vertical���ϵ�ʱ��Ҫ����insertΥ��Լ��Ҫ�ع�����������
+        try{
+            for(int loop=0;loop<s_vertical.length;loop++)
+            {
+                String type;
+                lnList.remove(s_vertical[loop]);
+                type=TableMap.getAttribute(s_vertical[loop]);
+                TableMap.getData(s_vertical[loop]).insert(trans.typetransverter(insertion_sequence[loop], type));
+            }
+            for(int loop=0;loop<lnList.size();loop++)
+            {
+                //String type=TableMap.getAttribute(lnList.get(loop));
+                TableMap.getData(lnList.get(loop)).insert(null);
+            //insert��δ�ἰ����ֵΪnull
+            }
+        }
+        catch(Exception e){//�ٶ����񣬾����Exception�Ժ�����
+            
+        }
+    }
+    
+    public void update(String[] s_vertical,String[] s_condition,String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition) throws HaveNoListName_error, Type_not_exist, Exception 
+    {//set s_vertical=s_condition 
+     //where c_vertical s_condition e_condition
+        int Size=thisTable.getSize();
+        TableMapping<String,String,Vertical_column_old> TableMap=thisTable.getTableMapping();
+        Integer[] samelocal;
+        setData(TableMap);
+        checkListname_beingness(s_vertical);
+        if(f_vertical==null)
+        {
+            samelocal=new Integer[Size];
+            for(int loop=0;loop<Size;loop++)
+                samelocal[loop]=loop;
+        }
+        else
+        {
+            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);
+        }
+        for(int loop=0;loop<s_vertical.length;loop++)
+        {
+            String type=TableMap.getAttribute(s_vertical[loop]);
+            TableMap.getData(s_vertical[loop]).update(samelocal,trans.typetransverter(s_condition[loop], type));
+        }
+        cleanData();
+    }
+
+    public void delete(/*String[] s_vertical,*/String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition) throws OutofMemory_error, Type_not_exist, Exception 
+    {
+        int Size=thisTable.getSize();
+        TableMapping<String,String,Vertical_column_old> TableMap=thisTable.getTableMapping();
+        Integer[] samelocal;
+        setData(TableMap);
+        if(f_vertical==null)
+        {
+            samelocal=new Integer[Size];
+            for(int loop=0;loop<Size;loop++)
+                samelocal[loop]=loop;
+        }
+        else
+        {
+            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);//���յ�where����ѡ������Ľ��
+        }
+        String[] listnames=thisTable.getListOrder().toArray(new String[0]);
+        for(int loop=0;loop<listnames.length;loop++)
+        {
+            TableMap.getData(listnames[loop]).delete(samelocal);
+        }
+        thisTable.reSize(Size-samelocal.length);
+        thisTable.realloc();
+        cleanData();
+    }
+    
+
+    public Table select(Table table,String[] s_vertical,String[] newnames,String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition) throws Exception //�趨���������ơ���������
+    {//���� where c_vertical=e_condition('=' is s_condition)��Ȼ����ݱ��б�����������ͽ���һ��ǿ��ת��
+        if(s_vertical==null&f_vertical==null)
+            return table.clone();//���select *����ô�ʹ�ӡ����
+        
+        TableMapping<String,String,Vertical_column_old> tm=table.getTableMapping();
+        setData(tm);
+        if(s_vertical==null)
+        {
+            s_vertical=table.getListOrder().toArray(new String[0]);
+            newnames=table.getListOrder().toArray(new String[0]);
+        }
+        else
+        {
+            checkListname_beingness(s_vertical);
+        //�����ƶ�ִ�мƻ���ʱ��newnames���Ǽ��ÿգ���������ҲҪ��Ӧ�ĸı��жϷ�ʽ
+            for(int loop=0;loop<s_vertical.length;loop++)
+                if(newnames[loop]==null)
+                    newnames[loop]=s_vertical[loop];
+        }
+        
+        Vertical_column_old[] temp;
+        Integer[] samelocal;
+        if(f_vertical==null)
+        {
+            samelocal=new Integer[table.getSize()];
+            for(int loop=0;loop<table.getSize();loop++)
+                samelocal[loop]=loop;
+            temp=Vertical_checkout(s_vertical,newnames, samelocal);
+        }
+        else
+        {
+            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);//���յ�where����ѡ������Ľ��
+            temp=Vertical_checkout(s_vertical,newnames, samelocal);
+        }
+        cleanData();
+        return Table.setTable("tempselect",newnames,tm.getAttributes(s_vertical),temp);//��������Table���󲢷���
+    }
+    public void alter(String type,String[] s_vertical,String[] insertion_sequence) throws SingalList_error,HaveNoListName_error, NullTypePoint_error, Exception
+    {
+        setData(thisTable.getTableMapping());
+        if(type.equals("del"))
+        {
+            checkListname_beingness(s_vertical);
+            for(int loop=0;loop<s_vertical.length;loop++)
+            {
+                thisTable.getListOrder().remove(s_vertical[loop]);
+                thisTable.getTableMapping().remove(s_vertical[loop]);
+            }
+        }
+        else if(type.equals("add"))
+        {
+            try{
+                checkListname_beingness(s_vertical);
+                throw new Exception("�����Ѿ�����");
+            }
+            catch(HaveNoListName_error er){
+                for(int loop=0;loop<s_vertical.length;loop++)
+                {
+                    Vertical_column_old vc=getVertical_column(insertion_sequence[loop]);
+                    vc.realloc(thisTable.getMem());
+                    vc.alterSize(thisTable.getSize());
+                    thisTable.getListOrder().add(s_vertical[loop]);
+                    thisTable.getTableMapping().put(s_vertical[loop],vc.getVertical_name(),vc);
+                }
+            }
+        }
+        cleanData();
+    }
+    
+    private void reinsert()
+    {
+        
+    }
+}

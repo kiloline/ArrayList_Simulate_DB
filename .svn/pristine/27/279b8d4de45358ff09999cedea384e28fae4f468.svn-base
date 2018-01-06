@@ -1,0 +1,78 @@
+package Service.Language_disposer;
+
+import Data.Vessel.Word;
+import Data.classes.Language_node;
+import Utils.Check.check_regular;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+/**
+ * 使用反向倒转来表示一对多关系，即Key、Value位置反转
+ */
+public class Word_Grammar_unit {
+    private check_regular CR;
+    private HashMap<String,Language_node> word_Map;
+    private ArrayList<HashMap> Grammar_unit;
+    private HashMap<String,String> Var;
+    private HashMap<String,String> SQL_initVar;
+    private HashMap<String,String> MathFunction;
+    private HashMap<String,String> check_Mark_Link;
+
+    public Word_Grammar_unit(HashMap<String,Language_node> word_Map)
+    {
+        this.word_Map=word_Map;
+        Grammar_unit=new ArrayList<>();
+        Var=new HashMap<>();
+        Var.put("String","Var");
+        Var.put("Integer","Var");
+        Var.put("Double","Var");
+        Grammar_unit.add(Var);
+        MathFunction=new HashMap<>();
+        MathFunction.put("sqrt","MathFunction");
+        MathFunction.put("pow","MathFunction");
+        MathFunction.put("abs","MathFunction");
+    }
+    public void set_Word_Grammar_unit(LinkedList<Word> words)
+    {
+        LinkedList<Word> LW=new LinkedList<>();
+        for(Iterator<Word> wordIterator = words.listIterator();wordIterator.hasNext();)
+        {
+            Word word=wordIterator.next();
+            if(word_Map.get(word.getName())!=null)//判断是否为关键字
+            {
+                if(word.getName().equals("\'"))
+                {
+                    word=wordIterator.next();
+                    if(word.getName().equals("String"))
+                        
+                }
+                LW.add(word);
+            }
+            else
+                switch(check_regular.regular(word.getName()))
+                {
+                    case "isInteger":
+
+                    case "isDouble":
+                    case "isListName":
+                    case "isTLName":
+                    case "isTSTLName":
+                }
+        }
+    }
+
+    private void fugue(Word word)
+    {
+        for(HashMap<String,String> unit:Grammar_unit)
+        {
+            if(unit.get(word.getName())!=null) {
+                word.setType(unit.get(word.getName()));
+                return;
+            }
+        }
+        word.setType(word.getName());
+    }
+}

@@ -1,0 +1,101 @@
+新的分词器初步计划采取如下行为：
+1.对于字母，数字，采取直接划分，并且注入到word类型的name中。
+2.对于符号，按照原有的方式生成word
+
+将分词器中对于单词语法部分的识别提取出来放到新的类里
+新的类采取如下行为：
+1.按照旧有的方式识别关键字
+2.对关键字进行一定的规约
+3.用规约后的名字填充word.type,
+  对于非关键字，用对应关键字替换word.name，将其中原有的值放到word.substance
+
+单词对应的语法单位
+SQL_start    create
+             drop
+             select
+             insert
+             update
+             delete
+             alter//第三次修订
+             show
+child_SQL_start    from
+                   where
+        //order
+        //by
+        union
+        set
+        into
+        values
+        add//第三次修订
+        del//第三次修订
+        //distinct
+        
+        //sequence
+        //cursor
+        table
+        tablespace
+        //view
+        //dual
+        //以下三个是create的时候定义用的
+        int
+        double
+        string
+        //以下三个是标识变量类型用的
+        String
+        Integer
+        Double
+        
+        column
+        T_name
+        L_name
+        TS_name
+        newList_name
+        newTable_name
+        C_name
+        S_name
+        
+        +
+        -
+        *
+        /
+        =
+        >
+        <
+        >=
+        <=
+        !=
+        
+        (
+        )
+        ,
+        .
+        \'
+        \"
+        ;//这个单词作为终止符，一开始认为不用添加
+        
+        and
+        or
+        in
+        
+        null
+        is
+        isnot
+        
+        //asc
+        //desc
+        
+        dbtree
+        memory_use
+        cpu_use
+        //以上是第一次构想的关键字
+        //sysdate
+        commit//单独出现，没有上下文。
+        
+        //5.2加入
+        //Clause_SQL//这个是更加高级的语法非终结符，不应该加到这里
+        ^
+        %
+        //适用于各类数学函数符号，例如sqrt、abs、pow等
+        sqrt
+        abs
+        pow

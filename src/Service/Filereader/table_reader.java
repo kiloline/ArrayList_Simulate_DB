@@ -33,9 +33,11 @@ public class table_reader extends Xml_Reader
             String[] nodedata=new String[vertical_nodes.size()];
             for(int loopi=0;loopi<vertical_nodes.size();loopi++)
             {
-                String toNode=vertical_nodes.get(loopi).getText();
-                if(toNode.equals(""))
+                String toNode;
+                if(vertical_nodes.get(loopi).attributeValue("isNull").equals("Null"))
                     toNode=null;
+                else
+                    toNode=vertical_nodes.get(loopi).getText();
                 nodedata[loopi]=toNode;
             }
             ln[loop]=list.attributeValue("name");

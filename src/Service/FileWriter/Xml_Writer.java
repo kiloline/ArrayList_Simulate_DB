@@ -21,12 +21,12 @@ import org.dom4j.io.XMLWriter;
  */
 public class Xml_Writer 
 {
-    protected String rootpath; //ÕâÊÇÒª°ÑÎÄ¼ş±£´æµÄÎ»ÖÃ
+    protected String rootpath; //è¿™æ˜¯è¦æŠŠæ–‡ä»¶ä¿å­˜çš„ä½ç½®
     //protected String newTBname;
     protected Element root;
     private count_HASH_code chc;
     protected String Encoding;
-    //protected File toWrite;  //ÕâÊÇµ±Ç°½øĞĞ²Ù×÷µÄÎÄ¼ş¶ÔÏó
+    //protected File toWrite;  //è¿™æ˜¯å½“å‰è¿›è¡Œæ“ä½œçš„æ–‡ä»¶å¯¹è±¡
     public Xml_Writer(String rootpath)
     {
         root=DocumentHelper.createElement("root");
@@ -111,10 +111,10 @@ public class Xml_Writer
         OutputFormat format = new OutputFormat("    ", true);
         
         //file.delete();
-        //´´½¨ÎÄµµ
+        //åˆ›å»ºæ–‡æ¡£
         Document document = DocumentHelper.createDocument(root.createCopy());
-        //Èç¹û²»ÓÃroot.createCopy()µÄ»°£¬ÄÇÃ´Õë¶ÔÒÑ¾­´æÔÚµÄÎÄ¼ş£¨Í¨¹ıxml_reader¶ÁÈ¡µÄroot£©£¬»á±¨"The Node already has an existing document"µÄ´íÎó
-        format.setEncoding(Encoding);//ÉèÖÃ±àÂë¸ñÊ½
+        //å¦‚æœä¸ç”¨root.createCopy()çš„è¯ï¼Œé‚£ä¹ˆé’ˆå¯¹å·²ç»å­˜åœ¨çš„æ–‡ä»¶ï¼ˆé€šè¿‡xml_readerè¯»å–çš„rootï¼‰ï¼Œä¼šæŠ¥"The Node already has an existing document"çš„é”™è¯¯
+        format.setEncoding(Encoding);//è®¾ç½®ç¼–ç æ ¼å¼
         XMLWriter xmlWriter = new XMLWriter(new FileOutputStream(file), format);
         xmlWriter.write(document);
         xmlWriter.close();

@@ -1,15 +1,11 @@
 package Service.Language_ExecutePlan_builder;
 
 import Data.Vessel.ExecutePlan_Package;
-import Service.Language_disposer.InitLanguage_node;
-import Data.classes.Language_node;
 import Data.Vessel.Word;
-import Service.Language_disposer.Word_Segmentation_Machine;
 import Service.Service;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+
+import java.util.*;
+
 import m_Exception.FileSystem.ClassNotFound;
 import m_Exception.Language_error;
 
@@ -19,10 +15,10 @@ import m_Exception.Language_error;
  */
 public class ExecutePlan_builder 
 {
-    Service service;
+    private Service service;
     //LinkedList<Word> words;
-    String default_tbs="public";
-    ExecutePlan_Package EPP;
+    private String default_tbs="public";
+    private ExecutePlan_Package EPP;
     ArrayList<String> clause_stop;
     public ExecutePlan_builder(Service backstage,ArrayList<String> clause_stop)
     {
@@ -35,14 +31,11 @@ public class ExecutePlan_builder
         LinkedList<LinkedList<Word>> Division=this.Pretreatment_Division_clause(words);
         Word_Classifier WC=new Word_Classifier(this,words);
         //EPP=WC.Classify();
-        EPP=WC.Classify(Division);
+        EPP=WC.Classify();
         return EPP;
     }
-    public LinkedList<LinkedList<Word>> call_clause(LinkedList<Word> toDiv)
-    {
-        return this.toFind_clause_start(toDiv);
-    }
-    private LinkedList<LinkedList<Word>> Pretreatment_Division_clause(LinkedList<Word> words)
+
+    public LinkedList<LinkedList<Word>> Pretreatment_Division_clause(LinkedList<Word> words)
     {
         LinkedList<Word> toDiv=(LinkedList<Word>) words.clone();
         return toFind_clause_start(toDiv);
@@ -73,58 +66,24 @@ public class ExecutePlan_builder
         return Return;
     }
     
-    public void CheckClasses(ExecutePlan_Package p,LinkedList<String> Lttbs,LinkedList<String> Lttb) throws ClassNotFound
-    {
-        while(!Lttb.isEmpty()||!Lttbs.isEmpty())
-        {
-            String ttbs,ttb;//=call_tablespace.removeFirst();
-            try{ttbs=Lttbs.removeLast();}//ÕâÀïÈç¹û²»²¶»ñÒì³£µÄ»°»áÖ±½ÓÅ×³öÒì³££¬¾¡¹ÜremoveFirstµÄ·µ»ØÖµÊÇnull¡£
-            catch(Exception e){ttbs=default_tbs;}
-            try{ttb=Lttb.removeLast();}
-            catch(Exception e){ttb=null;}
-            //·ÇcreateµÄ×´Ì¬ÏÂ¼ì²éSQLµ±ÖĞÌáµ½µÄ±í¿Õ¼äºÍ±íÊÇ·ñ´æÔÚ£¬²»´æÔÚÔòÅ×³öÒì³£
-            if(p.getCommand().equals("create")&&p.getCreateType().equals("table")&&!service.check_File_exist(ttbs, ttb))
+    public void CheckClasses(String Lttbs,String Lttb) throws ClassNotFound
+    {//ç”¨äºæ£€æŸ¥è®°å½•çš„è¡¨åå’Œè¡¨ç©ºé—´åæ˜¯å¦å¯ç”¨
+     // é’ˆå¯¹createçš„æ£€æŸ¥åº”å½“ç”±è‡ªåŠ¨æœºé€šè¿‡å°é—­è·¯å¾„çš„æ–¹å¼å®Œæˆï¼Œè¿™é‡Œå°±å¯ä»¥æå¤§çš„ç®€åŒ–é€»è¾‘
+        if(Lttbs==null)
+            Lttbs=default_tbs;
+        if(service.check_File_exist(Lttbs, Lttb))
                 ;
-            else if(p.getCommand().equals("create")&&p.getCreateType().equals("tablespace")&&!service.check_File_exist(ttbs, ttb))
-                    ;
-            else if(p.getCommand().equals("drop")&&p.getCreateType().equals("tablespace")&&service.check_File_exist(ttbs, ttb))
-                ;
-            else if(service.check_File_exist(ttbs, ttb))
-                ;
-            else
-                throw new ClassNotFound(ttbs+'.'+ttb);
-            p.PushClasses(ttbs, ttb);
-        }
+        else
+            throw new ClassNotFound(Lttbs+'.'+Lttb);
     }
     
-    public List<String> callTablecheckselectlist(String tbs,String tb,String[] s_vertical)
-    {//ÎªÁËÈÃ·Ö´ÊÆ÷ÖĞÄÜ¹»½øĞĞ¶¯Ì¬µÄÁĞÃû¼ì²é¶øÉè¼ÆµÄ
+    public List<String> callTablecheckselectlist(String tbs,String tb,LinkedList<String> s_vertical)
+    {//ä¸ºäº†è®©åˆ†ç±»å™¨ä¸­èƒ½å¤Ÿè¿›è¡ŒåŠ¨æ€çš„åˆ—åæ£€æŸ¥è€Œè®¾è®¡çš„
         return service.call_FileSystem().getTable(tbs, tb).checkselectlist(s_vertical);
     }
-    
-    public static void main(String[] ar) throws Exception
+
+    public ArrayList<String> getCstop()
     {
-        String SQL="select tra,rbg,dsf,dsa from fisrt,(select *from second) second where fisrt.name is null;";
-        
-        InitLanguage_node allNodes=new InitLanguage_node();
-        ArrayList<String> clause_stop=allNodes.setclause_stop();
-        HashMap<String,Language_node> word_Map=allNodes.setWord_Map();
-        Word_Segmentation_Machine WSS=new Word_Segmentation_Machine(word_Map);
-        LinkedList<Word> word_list=WSS.Segment(SQL);
-        ExecutePlan_builder EPB=new ExecutePlan_builder(null,clause_stop);
-        
-        //LinkedList<LinkedList<Word>> Return=EPB.toFind_clause_start(word_list);
-        /*        for(int loop=0;loop<Return.size();loop++)
-        {
-        LinkedList<Word> tlw=Return.get(loop);
-        for(int loopi=0;loopi<tlw.size();loopi++)
-        if(tlw.get(loopi).getSubstance()!=null)
-        System.out.print(tlw.get(loopi).getSubstance()+' ');
-        else
-        System.out.print(tlw.get(loopi).getName()+' ');
-        System.out.println();
-        }*/
-        ExecutePlan_Package make_ExecutePlan = EPB.make_ExecutePlan(word_list);
-        System.out.println();
+        return clause_stop;
     }
 }

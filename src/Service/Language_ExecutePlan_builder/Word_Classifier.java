@@ -2,19 +2,21 @@ package Service.Language_ExecutePlan_builder;
 
 import Data.Vessel.ExecutePlan_Package;
 import Data.Vessel.Word;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
+
+import java.util.*;
+
+import Data.classes.Table;
 import m_Exception.FileSystem.ClassNotFound;
 import m_Exception.Language_error;
+import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
 
 /** 
  *
  * @author gosiple
- * µ¥´Ê·ÖÀàÆ÷£¬ÓÃÓÚµÚÒ»²½´ÖÉ¸£¬½«Õû¾äÖĞµÄµ¥´Ê°´ÕÕÒ»¶¨µÃÓï·¨¸ñ×Ó·Ö¿ª£¨Ò²¾ÍÊÇË×³ÆµÄ×Ó¾ä£©£¬´«µİµ½ÏÂÒ»²ã
- * ´¦Àí×Ó²éÑ¯µÄÊ±ºòÓÈÆäÒªĞ¡ĞÄ£¬×îºÃÉèÖÃÁ½¸ö·½Ê½À´´«µİ
- * Ä¿Ç°×Ô´Ó¶Ô·ÖÎö¸´ÔÓselectµÄ¼Æ»®ÌáÉÏÈÕ³ÌÖ®ºó£¬·ÖÀàÆ÷¾Í¸ºµ£ÁË¾ø´ó²¿·ÖÓïÒå·ÖÎöµÄ¹¤×÷
- * ±»ÆÈĞ´³ÉÁË¸´ÔÓµÄµİ¹é£¬ÎÒÕæµÄ²»ÏëÕâÃ´Ğ´µÄ£¬µ«ÊÇ¹âÊÇĞ´³ÉÕâÑù¼ÆËãÁ¿ÒÑ¾­ÓĞµã´óÁË£¬µİÍÆÖ´ĞĞ¡­¡­»¹ÍêÈ«Ã»ÓĞ·½°¸¡£
+ * å•è¯åˆ†ç±»å™¨ï¼Œç”¨äºç¬¬ä¸€æ­¥ç²—ç­›ï¼Œå°†æ•´å¥ä¸­çš„å•è¯æŒ‰ç…§ä¸€å®šå¾—è¯­æ³•æ ¼å­åˆ†å¼€ï¼ˆä¹Ÿå°±æ˜¯ä¿—ç§°çš„å­å¥ï¼‰ï¼Œä¼ é€’åˆ°ä¸‹ä¸€å±‚
+ * å¤„ç†å­æŸ¥è¯¢çš„æ—¶å€™å°¤å…¶è¦å°å¿ƒï¼Œæœ€å¥½è®¾ç½®ä¸¤ä¸ªæ–¹å¼æ¥ä¼ é€’
+ * ç›®å‰è‡ªä»å¯¹åˆ†æå¤æ‚selectçš„è®¡åˆ’æä¸Šæ—¥ç¨‹ä¹‹åï¼Œåˆ†ç±»å™¨å°±è´Ÿæ‹…äº†ç»å¤§éƒ¨åˆ†è¯­ä¹‰åˆ†æçš„å·¥ä½œ
+ * è¢«è¿«å†™æˆäº†å¤æ‚çš„é€’å½’ï¼Œæˆ‘çœŸçš„ä¸æƒ³è¿™ä¹ˆå†™çš„ï¼Œä½†æ˜¯å…‰æ˜¯å†™æˆè¿™æ ·è®¡ç®—é‡å·²ç»æœ‰ç‚¹å¤§äº†ï¼Œé€’æ¨æ‰§è¡Œâ€¦â€¦è¿˜å®Œå…¨æ²¡æœ‰æ–¹æ¡ˆã€‚
  */
 public class Word_Classifier 
 {
@@ -47,7 +49,7 @@ public class Word_Classifier
         Division_line_is_read=new LinkedList<>();
         joinEPP=new LinkedList<>();
     }
-    public ExecutePlan_Package Classify(LinkedList<LinkedList<Word>> Division) throws ClassNotFound, Language_error
+    public ExecutePlan_Package Classify() throws ClassNotFound, Language_error
     {
         LinkedHashSet<Word> tableSet;
         switch(start)
@@ -79,260 +81,48 @@ public class Word_Classifier
             }
             case "select":
             {
-                LinkedList<String> bracketstack=new LinkedList<>();
-                tableSet=new LinkedHashSet<>();
-                int Tablenumber=0;
-                int readingline=1;//ÕıÔÚ¶ÁÈ¡µÄĞĞºÅ
-                //from×Ó¾äÓ¦¸Ã·Åµ½×îÇ°Ãæ½øĞĞ·ÖÎö
-                LinkedList<Word> temp=Division.get(readingline);
-                for(int loop=0;loop<temp.size();loop++)
+                LinkedList<LinkedList<Word>> Division=backstage.Pretreatment_Division_clause(this.toClassify);
+                HashMap<String,LinkedList<Word>> select_Map=new HashMap<>();//å°†selectçš„å­å¥å’Œèµ·å§‹å•è¯åˆ†åˆ«å¯¹åº”
+                ArrayList<String> Cstop=backstage.getCstop();
+                for(String s:Cstop)
                 {
-                    if(temp.get(loop).getName().equals("T_name")||temp.get(loop).getName().equals("newTable_name"))
-                    {
-                        Tablenumber++;
-                        tableSet.add(temp.get(loop));
-                        if(tableSet.size()!=Tablenumber)
-                            throw new Language_error("¶Ô²»Í¬µÄ±íÊ¹ÓÃÁËÍ¬Ò»¸öÃû³Æ»ò±ğÃû");
-                    }
-                    else if(temp.get(loop).getName().equals("(")) //ËµÃ÷·¢ÏÖÁËÇ¶Ì××Ó²éÑ¯
-                    {
-                        //childEPP=new ExecutePlan_Package("select");
-                        bracketstack.add(temp.get(loop).getName());
-                        LinkedList<Word> child=new LinkedList<>();
-                        child.addAll(temp.subList(loop+1, temp.size()-1));//ÏÈ°Ñµ±Ç°Ò»ĞĞµÄselect×Ó¾äÌí¼Ó½øÈ¥
-                        Division_line_is_read.add(readingline);
-                        //Ò»Ö±ÕÒµ½×îºóÒ»¸öÓÒÀ¨ºÅÎªÖ¹
-                        OUTER:
-                        for(readingline++;readingline<Division.size();readingline++)
-                        {
-                            temp=Division.get(readingline);
-                            Division_line_is_read.add(readingline);
-                            for(int loopi=0;loopi<temp.size();loopi++)
-                            {
-                                switch (temp.get(loopi).getName()) {
-                                    case ")":
-                                        bracketstack.remove();
-                                        if(!bracketstack.isEmpty())
-                                            child.add(temp.get(loopi));
-                                        break;
-                                    case "(":
-                                        bracketstack.add(temp.get(loop).getName());
-                                    default:
-                                        child.add(temp.get(loopi));
-                                        break;
-                                }
-                                if(bracketstack.isEmpty())
-                                {
-                                    loop=loopi;
-                                    //child.remove();//½«×îºóÒ»¸ö¶à³öÀ´µÄ£©Ä¨È¥
-                                    LinkedList<LinkedList<Word>> ch_Division=backstage.call_clause(child);
-                                    childEPP=new Word_Classifier(backstage,child).Classify(ch_Division);
-                                    EPP.initchildEPP(EPP);
-                                    break OUTER;
-                                }
-                            }
-                        }
-                    }
+                    select_Map.put(s,new LinkedList<Word>());
                 }
-                Division_line_is_read.add(readingline);
-                Iterator<Word> itableset=tableSet.iterator();
-                while(itableset.hasNext())//Í³¼Æ×Ü¹²ÓĞ¼¸ÕÅ±í²ÎÓëÁËÕâ¸öunionÄÚµÄ¹ØÁª
+
+                String s_Cnode=null;
+                for(LinkedList<Word> clause:Division)
                 {
-                    if(itableset.next().getName().equals("T_name"))
-                        joinEPP.add(new ExecutePlan_Package("T_name",""));
-                }
-                for(int loop=0;loop<Division.size();loop++)
-                {
-                    if(Division_line_is_read.get(loop)!=-1)
-                        continue;//ÒÑ¾­·ÖÎö¹ıµÄĞĞ²»ÔÙ½øĞĞ·ÖÎö
-                    temp=Division.get(loop);
-                    switch(temp.get(0).getName())
+                    if(select_Map.get(clause.get(0).getName())!=null)
                     {
-                        case "select":
-                        {
-                            for(int loopn=1;loopn<temp.size();loopn++)
-                            {
-                                switch(temp.get(loopn).getName())
-                                {
-                                    case "newList_name":
-                                        newnames.set(loopn, temp.get(loopn).getSubstance());
-                                        break;
-                                    case "L_name":
-                                        s_vertical.addLast(temp.get(loopn).getSubstance());
-                                        newnames.addLast(null);
-                                        break;
-                                    case "T_name":
-                                    case "TS_name":
-                                        
-                                }
-                            }
-                            break;
-                        }
+                        s_Cnode=clause.removeFirst().getName();
+                        select_Map.get(clause.get(0).getName()).addAll(clause);
                     }
-                    //switch()
-                }
-                break;
-            }
-            case "show":
-            {
-                show();
-                break;
-            }
-            case "alter":
-            {
-                alter();
-                break;
-            }
-            case "commit":break;
-            default:
-        }
-        return EPP;
-    }
-    public ExecutePlan_Package Classify() throws ClassNotFound, Language_error
-    { 
-        int point=0;
-        switch(start)
-        {
-            case "create":
-            {
-                create();
-                break;
-            }
-            case "drop":
-            {
-                drop();
-                break;
-            }
-            case "insert":
-            {
-                //String[] s_vertical,String[] insertion_sequence
-                insert();
-                break;
-            }
-            case "delete":
-            {
-                delete();
-                break;
-            }
-            case "update":
-            {
-                //String[] s_vertical,String[] s_condition,String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition
-                update();
-                break;
-            }
-            case "select":
-            {
-                //String[] s_vertical,String[] newnames,String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition
-                boolean value=true;
-                boolean where=true;
-                boolean slc=true;
-                boolean from=true;
-                int Tablenumber=0;
-                
-                if(!toClassify.get(1).getName().equals("*")&value)
-                    {
-                        s_vertical=new LinkedList<>();
-                        newnames=new LinkedList<>();
-                        value=false;
-                    }
-                for(int loop=1,loopn=-1;loop<toClassify.size();loop++)
-                {
-                    if(slc)
-                        ;
-                    if(where)
-                        switch(toClassify.get(loop).getName())
-                        {
-                            case "T_name":
-                                call_table.add(toClassify.get(loop).getSubstance()); break;
-                            case "TS_name":
-                                call_tablespace.add(toClassify.get(loop).getSubstance()); break;
-                            case "newList_name":
-//ÕâÀï¶ÔnewList_nameµÄ´¦Àí·½Ê½ÓĞÎÊÌâ£¬Èç¹ûÒ»¸öSQLµ±ÖĞÍêÈ«Ã»ÓĞnewList_nameµÄ»°»áµ¼ÖÂÆä²»Îªnullµ«ÊÇ³¤¶ÈÎª0
-                                //newnames.addLast(toClassify.get(loop).getSubstance());break;
-                                newnames.set(loopn, toClassify.get(loop).getSubstance());
-                                break;
-                            case "L_name":
-                                s_vertical.addLast(toClassify.get(loop).getSubstance());
-                                newnames.addLast(null);
-//ÕâÑùÏÈ°ÑnewnameÉèÎªnull
-                                loopn++;//Ã¿Â¼ÈëÒ»¸öL_name£¬¾ÍÈÃloopn¼ÓÒ»£¬Îªcase "newList_name"×öÖ¸Ê¾
-                                break;
-                            case "where":
-                                where=false;
-                                linkmark=new LinkedList<>();
-                                f_vertical=new LinkedList<>();
-                                f_option=new LinkedList<>();
-                                f_condition=new LinkedList<>();
-                                break;
-                            case "union":
-                            {
-                                LinkedList<Word> union=new LinkedList<>();
-                                for(int loopi=loop+1;;loopi++)
-                                {
-                                    if(toClassify.get(loopi).getName().equals("union"))
-                                        break;
-                                    if(loopi+1==toClassify.size())
-                                        break;
-                                    union.add(toClassify.get(loopi));
-                                }
-                                this.unionEPP=new Word_Classifier(backstage,union).Classify();
-                                EPP.initunionEPP(unionEPP);
-                                loop=loop+union.size();
-                                break;
-                            }
-                        }
+                    else if(s_Cnode!=null)
+                        select_Map.get(s_Cnode).addAll(clause);
                     else
-                        switch(toClassify.get(loop).getName())
-                        {
-                            case "L_name":
-                                f_vertical.addLast(toClassify.get(loop).getSubstance());break;
-                            case "Integer":case "Double":case "String":case "null":
-                                f_condition.addLast(toClassify.get(loop).getSubstance());break;
-                            case "is":case "isnot": case "=":case "!=":case ">":case "<":case ">=":case "<=":
-                                f_option.addLast(toClassify.get(loop).getName());break;
-                            case "and":case "or":
-                                linkmark.addLast(toClassify.get(loop).getName());break;
-                            case "union":
-                            {
-                                LinkedList<Word> union=new LinkedList<>();
-                                for(int loopi=loop+1;;loopi++)
-                                {
-                                    if(toClassify.get(loopi).getName().equals("union"))
-                                        break;
-                                    if(loopi+1==toClassify.size())
-                                        break;
-                                    union.add(toClassify.get(loopi));
-                                }
-                                this.unionEPP=new Word_Classifier(backstage,union).Classify();
-                                EPP.initunionEPP(unionEPP);
-                                loop=loop+union.size();
-                                break;
-                            }
-                        }
+                        throw new Language_error(clause.get(0),"å­å¥èµ·å§‹å•è¯æœ‰è¯¯");
                 }
-                if(value&&where)
-                    ;
-                else if(value&&!where)
-                    EPP.setSelect(null, null, linkmark.toArray(new String[0]), f_vertical.toArray(new String[0]), f_option.toArray(new String[0]), f_condition.toArray(new String[0]));
-                else if(!value&&where)
-                    EPP.setSelect(s_vertical.toArray(new String[0]), newnames.toArray(new String[0]), null, null, null, null);
-                else //if(!value&&!where)
-                    EPP.setSelect(s_vertical.toArray(new String[0]), newnames.toArray(new String[0]), linkmark.toArray(new String[0]), f_vertical.toArray(new String[0]), f_option.toArray(new String[0]), f_condition.toArray(new String[0]));
+                from(select_Map.get("from"));
+
+
+                break;
+            }
+            case "show":
+            {
+                show();
                 break;
             }
             case "alter":
+            {
                 alter();
                 break;
-            case "show":
-                show();
-                break;
+            }
             case "commit":break;
             default:
         }
-        this.backstage.CheckClasses(EPP, call_tablespace, call_table);
         return EPP;
     }
-    
+
     private void show()
     {
         s_vertical=new LinkedList<>();
@@ -363,7 +153,7 @@ public class Word_Classifier
                     }
                 }
                 if(EPP.getCreateType().equals("table")&&s_vertical.isEmpty())
-                    throw new Language_error("½¨±íÓï¾ä²»ÄÜÃ»ÓĞÊµ¼ÊÁĞÏî");
+                    throw new Language_error("å»ºè¡¨è¯­å¥ä¸èƒ½æ²¡æœ‰å®é™…åˆ—é¡¹");
                 if(s_vertical!=null)
                     EPP.setCreate(s_vertical.toArray(new String[0]), s_condition.toArray(new String[0]));
     }
@@ -518,5 +308,31 @@ public class Word_Classifier
                     }
                 }
                 EPP.setAlter(s_vertical.toArray(new String[0]), insertion_sequence.toArray(new String[0]));
+    }
+    private Map<String,Table> from(LinkedList<Word> clause)
+    {
+        Map<String,Table> Return=new HashMap<>();
+        String TS_name=null,T_name=null,newT_name=null;
+        for(Word w:clause)
+        {
+            switch(w.getType())
+            {
+                case "TS_name":
+                    call_tablespace.add(w.getSubstance());
+                case "T_name":
+                    if(call_table.size()==call_tablespace.size())
+                        call_tablespace.add(null);
+                    call_table.add(w.getSubstance());
+                case "newT_name":
+                {
+                    for(;!call_table.isEmpty();)
+                    {
+
+                    }
+                }
+                case "Clause_SQL":
+            }
+        }
+        return Return;
     }
 }
