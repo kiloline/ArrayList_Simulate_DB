@@ -5,7 +5,6 @@ import Data.Vessel.Word;
 import Utils.Math.DoubleNumber;
 import Utils.Math.MathFunction_Calculation;
 import Utils.Math.Simple_Calculation;
-import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,31 +15,34 @@ public class Evaluate {
     Number n;
     Stack<Number> ops=new Stack<>();
     Stack<String> mark=new Stack<>();
+    StringBuilder evaString=new StringBuilder();
 
     public void pushElement(Word word)
     {
-        switch(word.getName())
+        switch(word.getType())
         {
-            case "Double":
-                ops.push(Double.parseDouble(word.getSubstance()));
-                break;
-            case "Integer":
-                ops.push(Integer.parseInt(word.getSubstance()));
-                break;
-            case "String"://目前不对String直接转换
+            case "Var": {
+                switch(word.getName())
+                {
+                    case "Double":
+                        ops.push(Double.parseDouble(word.getSubstance()));
+                        break;
+                    case "Integer":
+                        ops.push(Integer.parseInt(word.getSubstance()));
+                        break;
+                    case "String"://目前不对String直接转换 更正：String试图转换成双精度浮点型
+                        evaString.append(word.getSubstance());
+                        break;
+                }
+            }
             case "("://最高优先级，所以不进行优先级判断直接入栈
                 mark.push(word.getName());
                 break;
             case ")":
                 Q_step_calculation();
                 break;
-            case "+":
-            case "-":
-            case "*":
-            case "/":
-            case "%":
-            case "^":
-            case "sqrt":
+            case "calculation_Mark_Link":
+            case "MathFunction":
                 if(!mark.empty()) {
                     while (getPriority(this.mark.peek(), word.getName())) {
                         Single_step_calculation();
@@ -62,6 +64,7 @@ public class Evaluate {
                 ops.push((Integer)node.getelement());
                 break;
             case "java.lang.String":
+                evaString.append((String)node.getelement());
                 break;
         }
     }
@@ -116,10 +119,13 @@ public class Evaluate {
         mark.pop();//最后弹出左括号
     }
 
-    public Number getthisEvaluate() throws Exception {
+    public Object getthisEvaluate() throws Exception {
         while(!mark.empty()){
             Single_step_calculation();
         }
+
+        if(evaString.length()!=0)
+            return evaString.toString();
 
         if(ops.size()!=1)
             throw new Exception();
@@ -163,11 +169,13 @@ public class Evaluate {
             case "(":
                 return 6;
             case "+": case "-":
-            return 1;
+                return 1;
             case "*": case "/":
-            return 2;
-            case "^":return 3;
-            case "%":return 4;
+                return 2;
+            case "^":
+                return 3;
+            case "%":
+                return 4;
             default:
                 return 5;
         }

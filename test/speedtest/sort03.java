@@ -6,18 +6,18 @@ public class sort03 {
         // TODO Auto-generated method stub
         Scanner scan=new Scanner(System.in);
 
-        System.out.print("ÇëÊäÈëÊı×éÔªËØ¸öÊı:");
-        int n = scan.nextInt();    //µ÷ÓÃScannerÀàÖĞµÄ·½·¨.nextInt() ¶ÔÏóÃû.·½·¨Ãû
+        System.out.print("è¯·è¾“å…¥æ•°ç»„å…ƒç´ ä¸ªæ•°:");
+        int n = scan.nextInt();    //è°ƒç”¨Scannerç±»ä¸­çš„æ–¹æ³•.nextInt() å¯¹è±¡å.æ–¹æ³•å
 
-        System.out.println("ÄúÊäÈëµÄÊı×éµÄ¸öÊıÊÇ£º"+n);
+        System.out.println("æ‚¨è¾“å…¥çš„æ•°ç»„çš„ä¸ªæ•°æ˜¯ï¼š"+n);
 
-        System.out.print("ÏÂÃæÇëÊäÈëÊı×é£º");
+        System.out.print("ä¸‹é¢è¯·è¾“å…¥æ•°ç»„ï¼š");
         int num[]=new int[n];
         for(int i=0;i<num.length;i++){
             num[i] = scan.nextInt();
         }
 
-        System.out.print("ÄúÊäÈëµÄĞòÁĞÊÇ£º");
+        System.out.print("æ‚¨è¾“å…¥çš„åºåˆ—æ˜¯ï¼š");
         for(int i=0;i<num.length-1;i++)
         {
             System.out.print(num[i]);
@@ -27,7 +27,7 @@ public class sort03 {
 
         java.util.Arrays.sort(num);
 
-        System.out.print("ÅÅĞòÒÔºóµÄÊı×éĞòÁĞÊÇ£º");
+        System.out.print("æ’åºä»¥åçš„æ•°ç»„åºåˆ—æ˜¯ï¼š");
         for(int j=0;j<num.length-1;j++){
             System.out.print(num[j]);
             System.out.print(',');

@@ -7,4 +7,6 @@ public interface DoubleNumber {
     public Number division(Number left,Number right);
     public Number mi(Number left,Number right);
     public Number moer(Number left,Number right);
+
+    public Number pow(Number left,Number right);
 }

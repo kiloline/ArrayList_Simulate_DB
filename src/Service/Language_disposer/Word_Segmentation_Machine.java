@@ -27,7 +27,7 @@ public class Word_Segmentation_Machine
     LinkedList<Word> LW;//主SQL序列
     Coolean status;
     String toSQL;
-    int nowline,nowlist;
+    int nowline,nowlist,streamPoint=0;
     public Word_Segmentation_Machine(HashSet<String> map)
     {
         LW = new LinkedList<>();
@@ -37,6 +37,7 @@ public class Word_Segmentation_Machine
     }
     public LinkedList<Word> Segment(String content) throws Exception
     {
+        streamPoint=0;
         LW.clear();
         toSQL=content;
         StringBuffer toWord=new StringBuffer();
@@ -67,10 +68,11 @@ public class Word_Segmentation_Machine
             //在这里通过略微损失效率，每字符进行比较，从而正确完成解析
             //遇到单引号，需要构造String
                 {
+                    StringBuffer quo=new StringBuffer();
                     create_word_and_add(isWord,null);
-                    String cp_length=Stringinquotation(loop);
-                    create_word_and_add("String",cp_length);
-                    loop=loop+cp_length.length()+1;//loop停在后面的单引号上
+                    Integer cp_length=Stringinquotation(loop,quo);
+                    create_word_and_add("String",quo.toString());
+                    loop=loop+cp_length;//loop停在后面的单引号上
                     nowstatus=Coolean.mark;
                     toWord.delete(0, toWord.length());
                     continue;
@@ -150,27 +152,36 @@ public class Word_Segmentation_Machine
         }
     }
     
-    private String Stringinquotation(int loopo/*,String wt*/) throws Language_error, null_escape_char_error {
+    private Integer Stringinquotation(int loopo,StringBuffer str) throws Language_error, null_escape_char_error {
         //loopo是引号所在的位置，包括单双引号,注意SQL只支持单引号字符串
         //反斜杠以及转义的识别是严重问题
         //String example1="'\""; 单引号和双引号区间内不同种引号的识别情况
         //char example2='"';
         char stop='\'';int loop=1;
-        StringBuffer str=new StringBuffer();
-        while(toSQL.charAt(loopo+loop)!=stop)
+        while(true)
         {
             nowlist++;
             if(loopo+loop==toSQL.length()-1)
                 throw new Language_error(nowline,nowlist,"没有终结符号的字符串");
+
             if(toSQL.charAt(loopo+loop)=='\n')
             {
                 nowline=nowline+1;
                 nowlist=0;
             }
-            if(toSQL.charAt(loopo+loop)=='\\')//出现转义的情况
+            else if(toSQL.charAt(loopo+loop)=='\\')//出现转义的情况
             {
                 str.append(Escape(loopo,loop));
                 loop++;//跳过被转义的字符
+            }
+            else if(toSQL.charAt(loopo+loop)==stop)//应对标准形式的Oeacle单引号转义
+            {
+                if(toSQL.charAt(loopo+loop+1)==stop) {
+                    str.append(stop);
+                    loop++;
+                }
+                else
+                    break;
             }
             else
                 str.append(toSQL.charAt(loopo+loop));
@@ -178,7 +189,7 @@ public class Word_Segmentation_Machine
         }
         //最后要将生成的String和String的结尾位置返回上层函数，同时将整个String视为一个"字"
         status=Coolean.letter;
-        return str.toString();
+        return loop;
     }
     
     //转义字符处理函数

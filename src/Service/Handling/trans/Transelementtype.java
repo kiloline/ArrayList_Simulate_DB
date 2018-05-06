@@ -15,8 +15,8 @@ import java.util.LinkedList;
  * @author rkppo
  */
 public class Transelementtype {
-    check_StringtoNumber CSN=new check_StringtoNumber();
-    public Object typetransverter(String element, String type) throws Type_not_exist {
+    static check_StringtoNumber CSN=new check_StringtoNumber();
+    public static Object typetransverter(String element, String type) throws Type_not_exist {
         if (element == null) {
             ;
         } else if (type.equals("Integer") && CSN.check_StringtoInteger(element)) {
@@ -29,7 +29,7 @@ public class Transelementtype {
         return null;
     }
 
-    public <E> LinkedList<E> typetransverter2Array(String[] element, String type) throws Type_not_exist //,E tab
+    public static <E> LinkedList<E> typetransverter2Array(String[] element, String type) throws Type_not_exist //,E tab
     {
         LinkedList o;
         if (type.equals("Integer")) {

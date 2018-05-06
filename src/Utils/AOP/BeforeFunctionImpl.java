@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 
 public final class BeforeFunctionImpl {
     public static void before() {
-        // ��ȡ��ǰ��������
         String className = Thread.currentThread().getStackTrace()[2].getClassName();
         System.out.println("current className(expected): " + className);
         try {
@@ -13,10 +12,8 @@ public final class BeforeFunctionImpl {
             Object obj = c.newInstance();
             Method[] methods = c.getDeclaredMethods();
             for (Method m : methods) {
-                // �жϸ÷����Ƿ����BeforeFunctionע��
                 if (m.isAnnotationPresent(BeforeFunction.class)) {
                     m.setAccessible(true);
-                    // ִ�и÷���
                     m.invoke(obj);
                 }
             }

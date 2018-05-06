@@ -1,17 +1,18 @@
 package Service.Filereader;
 
 import Service.Fileloader.Control_File;
+import Service.Fileloader.DB_File_Abstract;
 import Service.Fileloader.Log_File;
 import Service.Fileloader.Tablespace_File;
-import Service.Fileloader.DB_File_Abstract;
 import Service.Handling.table_handling;
+import m_Exception.xml_reader.fileReader_error;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import m_Exception.xml_reader.fileReader_error;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
 
 /**
  *
@@ -29,7 +30,7 @@ public class control_reader extends Xml_Reader
         if(check_files())
             ;
         else
-            throw new fileReader_error("¿ØÖÆÎÄ¼şÒ»ÖÂĞÔ¼ì²éÎ´Í¨¹ı£¬¿ØÖÆÎÄ¼şÒÑ±»·Ç·¨¸ü¸Ä");
+            throw new fileReader_error("æ§åˆ¶æ–‡ä»¶ä¸€è‡´æ€§æ£€æŸ¥æœªé€šè¿‡ï¼Œæ§åˆ¶æ–‡ä»¶å·²è¢«éæ³•æ›´æ”¹");
         }
         this.th=th;
     }

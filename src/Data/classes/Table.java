@@ -4,7 +4,7 @@ import m_Exception.data.hVlength_error;
 import m_Exception.data.EachListlength_error;
 import m_Exception.data.NLlength_error;
 import Utils.Check.check_StringtoNumber;
-import Data.Verticaltype.Vertical_column_old;
+import Data.Verticaltype.Vertical_Column;
 import Data.Vessel.TableMapping;
 import Service.Handling.table_handling;
 
@@ -33,10 +33,10 @@ public class Table implements Serializable{
     private LinkedList<String> listnames;
     //各个列的列名以及伪指针
     //多余出来的列名列表用于保存原始的列名顺序
-    private TableMapping<String, String, Vertical_column_old> tm;
+    private TableMapping<String, String, Vertical_Column> tm;
     private check_StringtoNumber CSN;
 
-    public Table(String tablename, String[] listname, String[] listtype) throws Exception {
+    public Table(String tablename, String[] listname, String[] listtype,String[] data_structure) throws Exception {
         listnames = new LinkedList<>();
         tm = new TableMapping<>();
         if (listname.length != listtype.length)  //如果列名数量和列类型数量不等的话一定有问题
@@ -58,7 +58,7 @@ public class Table implements Serializable{
                     break;
             }
             listnames.add(listname[loop]);
-            tm.put(listname[loop], type, table_handling.getVertical_column(listtype[loop]));
+            tm.put(listname[loop], type, table_handling.getVertical_column(listname[loop],listtype[loop],data_structure[loop]));
             //tm.put(listname[loop], type, table_handling.getVertical_column(listtype[loop]));
             //hashtable.put(listname[loop],new Assemble(type,service.getVertical_column(listtype[loop])));
         }
@@ -66,7 +66,7 @@ public class Table implements Serializable{
         mem = 1;
     }
 
-    private Table(String tablename, String[] ln, String[] lt, Vertical_column_old[] verticals) throws Exception//�����Table���ڲ�ʹ�õ���ʽ������
+    private Table(String tablename, String[] ln, String[] lt, Vertical_Column[] verticals) throws Exception//�����Table���ڲ�ʹ�õ���ʽ������
     {
 //用于setTable()
         if (ln.length != verticals.length || ln.length != lt.length)
@@ -89,7 +89,7 @@ public class Table implements Serializable{
         //service=handling;//未赋值，所以还需要sethandling()来完成赋值。
     }
 
-    private Table(int size, int mem, LinkedList<String> ln, TableMapping<String, String, Vertical_column_old> TM) {
+    private Table(int size, int mem, LinkedList<String> ln, TableMapping<String, String, Vertical_Column> TM) {
         tablename = "linktable";
         Size = size;
         this.mem = mem;
@@ -159,11 +159,11 @@ public class Table implements Serializable{
         return Size;
     }
 
-    public static Table setTable(String tablename, String[] ln, String[] lt, Vertical_column_old[] verticals) throws Exception {
+    public static Table setTable(String tablename, String[] ln, String[] lt, Vertical_Column[] verticals) throws Exception {
         return new Table(tablename, ln, lt, verticals);
     }
 
-    public TableMapping<String, String, Vertical_column_old> getTableMapping() {
+    public TableMapping<String, String, Vertical_Column> getTableMapping() {
         return tm;
     }
 
@@ -176,7 +176,7 @@ public class Table implements Serializable{
         //listsize是每列的默认宽度
         System.out.println();
         int loop;
-        Vertical_column_old[] key = new Vertical_column_old[this.tm.size()];
+        Vertical_Column[] key = new Vertical_Column[this.tm.size()];
         StringBuilder tempBuffer = new StringBuilder();
 
         tempBuffer.append('|');
@@ -248,7 +248,7 @@ public class Table implements Serializable{
         } catch (Exception e) {
             throw new OutofMemory_error();
         }
-        Iterator<? extends Vertical_column_old> toRealloc = this.tm.DataIterator();
+        Iterator<? extends Vertical_Column> toRealloc = this.tm.DataIterator();
         while (toRealloc.hasNext()) {
             try {
                 toRealloc.next().realloc(this.mem);

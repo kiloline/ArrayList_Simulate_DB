@@ -62,6 +62,7 @@ public class env_properties {
                 env.setProperty("Encoding", "GBK");
                 env.setProperty("LogSize", "100");
                 env.setProperty("Execcache", "close");
+                env.setProperty("default_tbs", "public");
                 System.out.println("默认参数已加载");
             }
         }
@@ -70,5 +71,9 @@ public class env_properties {
     public static String getEnvironment(String envstring)
     {
         return init.env.getProperty(envstring);
+    }
+    public static void setEnvironment(String envname,String string)
+    {
+        init.env.setProperty(envname,string);
     }
 }

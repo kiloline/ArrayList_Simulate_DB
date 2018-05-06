@@ -8,11 +8,7 @@ import java.util.List;
 
 /**
  * @author gosiple
- * 这是用于多线程列操作的一个指令封包类，包含多种指令类型和基指令；
- * 是执行计划引擎的一个延伸，也是执行引擎的一个中间件。
- * 注意，get函数添加String[]的时候一定要按照Table当中对应入参列表最长的操作函数的入参顺序添加
- * 按理来说这个类要做成能够执行多表关联嵌套左右内外连接无所不能，但是现在暂时只能搞单表查询
- * 
+ *
  */
 public class ExecutePlan_Package 
 {
@@ -28,8 +24,8 @@ public class ExecutePlan_Package
     private String[] f_option;
     private String[] f_condition;
     private String[] insertion_sequence;//insert
-    private LinkedList<ExecutePlan_Package> childEPP;//嵌套子查询，针对where子句中的嵌套
-    private LinkedList<ExecutePlan_Package> joinEPP;//关联查询,针对from子句中的嵌套
+    private LinkedList<ExecutePlan_Package> childEPP;//嵌锟斤拷锟接诧拷询锟斤拷锟斤拷锟絯here锟接撅拷锟叫碉拷嵌锟斤拷
+    private LinkedList<ExecutePlan_Package> joinEPP;//锟斤拷锟斤拷锟斤拷询,锟斤拷锟絝rom锟接撅拷锟叫碉拷嵌锟斤拷
     private LinkedList<ExecutePlan_Package> unionEPP;//union
     private boolean haschild,hasjoin,hasunion;
     public ExecutePlan_Package(String command)
@@ -57,12 +53,12 @@ public class ExecutePlan_Package
         this("select");
     }
     
-    public void initchildEPP(ExecutePlan_Package pg)//为单嵌套子查询准备的结构，现在没有使用
+    public void initchildEPP(ExecutePlan_Package pg)//为锟斤拷嵌锟斤拷锟接诧拷询准锟斤拷锟侥结构锟斤拷锟斤拷锟斤拷没锟斤拷使锟斤拷
     {
         childEPP.add(pg);
         haschild=true;
     }
-    public void initunionEPP(ExecutePlan_Package pg)//为单嵌套子查询准备的结构，现在没有使用
+    public void initunionEPP(ExecutePlan_Package pg)//为锟斤拷嵌锟斤拷锟接诧拷询准锟斤拷锟侥结构锟斤拷锟斤拷锟斤拷没锟斤拷使锟斤拷
     {
         unionEPP.add(pg);
         hasunion=true;
@@ -234,4 +230,5 @@ public class ExecutePlan_Package
         }
         return Return;
     }
+
 }

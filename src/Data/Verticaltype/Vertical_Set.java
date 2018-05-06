@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+
+import com.sun.istack.internal.NotNull;
 import m_Exception.runtime.insertException;
 
 /**
@@ -37,12 +39,17 @@ public class Vertical_Set<E> extends Vertical_Column<E>{
         empty_array_local=new LinkedList<>();
         empty_array_local.add(0);
     }
-    protected Vertical_Set(LinkedList<E> newelement, String Vertical_name, String vertical_type, boolean index) {//尚未完成的初始化方法
+    public Vertical_Set(LinkedList<E> newelement, String Vertical_name, String vertical_type, boolean index) throws insertException {//尚未完成的初始化方法
         this(Vertical_name, vertical_type);
-        for(int loop=0;loop<mem;loop++)
-        {
+        realloc(newelement.size()+1);
+        Iterator<E> initele=newelement.listIterator();
+        for(int loop=1;loop<mem;loop++)
+        {//此时的循环次数应当和newelement的长度正好一致
+            E e=initele.next();
             empty_array_local.add(loop);
+            insert(e);//这里如果有插入错误，那么至少整张表的载入应当崩溃处理
         }
+
     }
 
     @Override
@@ -240,7 +247,7 @@ public class Vertical_Set<E> extends Vertical_Column<E>{
     }
 
     @Override
-    public Vertical_Column<E> checkout(Integer... p_c) {
+    public Vertical_Column<E> checkout(@NotNull String newVerticalName, Integer... p_c) {
         Object[] o=new Object[p_c.length];
         Vertical_Array<E> Return;
         try {

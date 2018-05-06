@@ -27,7 +27,7 @@ public class tablespace_reader extends Xml_Reader
             if(check_files())
                 ;
             else
-                throw new fileReader_error("±í¿Õ¼äÎÄ¼şÒ»ÖÂĞÔ¼ì²éÎ´Í¨¹ı£¬"+getRoot().attribute("tbsname").getValue()+"ÒÑ±»·Ç·¨¸ü¸Ä");
+                throw new fileReader_error("è¡¨ç©ºé—´æ–‡ä»¶ä¸€è‡´æ€§æ£€æŸ¥æœªé€šè¿‡ï¼Œ"+getRoot().attribute("tbsname").getValue()+"å·²è¢«éæ³•æ›´æ”¹");
         }
         this.th=th;
     }
@@ -36,14 +36,14 @@ public class tablespace_reader extends Xml_Reader
         LinkedList<Table_File> files = new LinkedList<>();
         List<Element> file_list=super.getElements("file_path");
         if(file_list.size()!=Integer.valueOf(root.attribute("table").getValue()))
-            throw new fileReader_error("±í¿Õ¼äÎÄ¼şÒ»ÖÂĞÔ¼ì²éÎ´Í¨¹ı£¬±í¿Õ¼äÎÄ¼şÒÑ±»·Ç·¨¸ü¸Ä");
+            throw new fileReader_error("è¡¨ç©ºé—´æ–‡ä»¶ä¸€è‡´æ€§æ£€æŸ¥æœªé€šè¿‡ï¼Œè¡¨ç©ºé—´æ–‡ä»¶å·²è¢«éæ³•æ›´æ”¹");
         for(int loop=0;loop<file_list.size();loop++)
         {
             File f=new File(file_list.get(loop).getText());
             /*try {
                 this.verifier_file(f, file_list.get(loop).attributeValue("SHA-256"));
             } catch (IOException ex) {
-                throw new fileReader_error("Êı¾İ±íÎÄ¼şÒ»ÖÂĞÔ¼ì²éÎ´Í¨¹ı£¬"+file_list.get(loop).getText()+"ÒÑ±»·Ç·¨¸ü¸Ä");
+                throw new fileReader_error("æ•°æ®è¡¨æ–‡ä»¶ä¸€è‡´æ€§æ£€æŸ¥æœªé€šè¿‡ï¼Œ"+file_list.get(loop).getText()+"å·²è¢«éæ³•æ›´æ”¹");
             }*/
             files.add(new Table_File(dbfile,file_list.get(loop).attribute("filename").getValue(),f,false,th));
         }

@@ -5,14 +5,8 @@
  */
 package Data.Vessel;
 
-import Data.Verticaltype.Vertical_column_old;
-
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  *

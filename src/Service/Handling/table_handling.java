@@ -1,11 +1,9 @@
 package Service.Handling;
 
+import Data.Verticaltype.*;
 import Data.classes.Table;
+import Service.Handling.Vertical_Factory.Vertical_Factory;
 import Utils.Check.check_StringtoNumber;
-import Data.Verticaltype.Vertical_Double;
-import Data.Verticaltype.Vertical_Integer;
-import Data.Verticaltype.Vertical_String;
-import Data.Verticaltype.Vertical_column_old;
 import Data.Vessel.ExecutePlan_Package;
 import Data.Vessel.TableMapping;
 import Service.Service;
@@ -16,6 +14,7 @@ import m_Exception.data.HaveNoListName_error;
 import m_Exception.NullTypePoint_error;
 import m_Exception.OutofMemory_error;
 import m_Exception.data.*;
+import m_Exception.runtime.insertException;
 import m_Exception.type.Type_not_exist;
 
 /**
@@ -26,7 +25,7 @@ public class table_handling
 {
     LinkedList<TableMapping> stack_list;
     check_StringtoNumber CSN;
-    TableMapping<String,String,Vertical_column_old> list;
+    TableMapping<String,String,Vertical_Column> list;
     Service backstage;
     Table thisTable;
     int listsize;
@@ -42,7 +41,7 @@ public class table_handling
     {
         listsize=length;
     }
-    public void setData(TableMapping<String,String,Vertical_column_old> map)
+    public void setData(TableMapping<String,String,Vertical_Column> map)
     {
         stack_list.addFirst(list);
         list=map;
@@ -51,34 +50,14 @@ public class table_handling
     {//为下一次复用做好准备
         list=stack_list.getFirst();
     }
-    public static Vertical_column_old getVertical_column(String vertical_name) throws NullTypePoint_error
-    {   //目前只支持int，double和String三种类型
-        switch (vertical_name)
-        {
-            case "int":case "Integer":
-            return new Vertical_Integer("Integer");
-            case "double":case "Double":
-            return new Vertical_Double("Double");
-            case "string":case "String":
-            return new Vertical_String("String");
-            default:
-                throw new NullTypePoint_error();
-        }
+    public static Vertical_Column getVertical_column(String vertical_name, String vertical_type,String data_structure)
+            throws NullTypePoint_error, Type_not_exist {   //目前只支持int，double和String三种类型
+        return Vertical_Factory.getVertical_column(vertical_name,vertical_type,data_structure);
     }
-    public Vertical_column_old setVertical_column(String[] vertical_nodes,String vertical_name) throws NullTypePoint_error, Type_not_exist
-    {   //目前只支持int，double和String三种类型
-        //table_handling th=new table_handling(backstage,new check_StringtoNumber());
-        switch (vertical_name)
-        {
-            case "int":case "Integer":
-            return new Vertical_Integer(typetransverter2Array(vertical_nodes,vertical_name),"Integer");
-            case "double":case "Double":
-            return new Vertical_Double(typetransverter2Array(vertical_nodes,vertical_name),"Double");
-            case "string":case "String":
-            return new Vertical_String(vertical_nodes,"String");
-            default:
-                throw new NullTypePoint_error();
-        }
+    public Vertical_Column setVertical_column
+            (String[] vertical_nodes,String vertical_name, String vertical_type,boolean isIndex,String data_structure)
+            throws NullTypePoint_error, Type_not_exist, insertException {   //目前只支持int，double和String三种类型
+        return Vertical_Factory.setVertical_column(vertical_nodes,vertical_name,vertical_type,isIndex,data_structure);
     }
 
     public synchronized void Implement_Plan(ExecutePlan_Package EPP) throws Exception
@@ -202,13 +181,13 @@ public class table_handling
     {//查找符合where条件的行号
         checkListname_beingness(c_vertical);
 
-        Vertical_column_old toSelect;
-        List<ArrayList<Integer>> Results=new LinkedList<>();
+        Vertical_Column toSelect;
+        List<List<Integer>> Results=new LinkedList<>();
         Integer[] samelocal = null;//最终的where条件选择出来的结果
         for(int loop=0;loop<c_vertical.length;loop++)
         {
             toSelect=list.getData(c_vertical[loop]);
-            ArrayList<Integer> selectresult1;
+            List<Integer> selectresult1;
             selectresult1=toSelect.Pick_Condition(s_condition[loop],typetransverter(e_condition[loop],list.getAttribute(c_vertical[loop])));
             Results.add(selectresult1);//根据条件查找到所有符合条件的行号，保存在Results当中
         }
@@ -223,17 +202,17 @@ public class table_handling
         samelocal=set.toArray(new Integer[0]);
         return samelocal;
     }
-    public Vertical_column_old[] Vertical_checkout(String[] listnames,String[] newnames,Integer[] LineNumber)
+    public Vertical_Column[] Vertical_checkout(String[] listnames,String[] newnames,Integer[] LineNumber)
     {//抽出指定行号、指定列的数据重新组成新的Vertical对象
         //Vertical_column[] a=new Vertical_column[0];
         String listname;
-        LinkedList<Vertical_column_old> result=new LinkedList<>();
+        LinkedList<Vertical_Column> result=new LinkedList<>();
         for(int loop=0;loop<listnames.length;loop++)
         {
             listname=newnames[loop];
             result.add(list.getData(listnames[loop]).checkout(listname,LineNumber));
         }
-        return result.toArray(new Vertical_column_old[0]);
+        return result.toArray(new Vertical_Column[0]);
     }
     public boolean checkListname_beingness(String[] listnames) throws HaveNoListName_error
     {
@@ -283,158 +262,159 @@ public class table_handling
 
     public void insert(String[] s_vertical,String[] insertion_sequence) throws ILlength_error, HaveNoListName_error, OutofMemory_error, Type_not_exist //() into tablename values()
     {
-        int Size=thisTable.getSize();
-        TableMapping<String,String,Vertical_column_old> TableMap=thisTable.getTableMapping();
-        if(s_vertical==null)
-            s_vertical=thisTable.getListOrder().toArray(new String[0]);
-
-        if(insertion_sequence.length!=s_vertical.length)
-            throw new ILlength_error();
-        setData(TableMap);
-        checkListname_beingness(s_vertical);
-        cleanData();
-        thisTable.reSize(Size+1);
-        thisTable.realloc();
-        LinkedList<String> lnList=new LinkedList<>(TableMap.keySet());
-        //for(int loop=0;loop<s_vertical.length;loop++)
-        //如果采用上述循环方式的话，必然导致表中各个列的长度不一致（有些列进行了insert而另一些列没有进行insert），
-        //必须将表中所有的列都循环一次，但是要注意s_vertical当中的顺序和原表列顺序未必相同。
-        for(int loop=0;loop<s_vertical.length;loop++)
-        {
-            String type;
-            lnList.remove(s_vertical[loop]);
-            type=TableMap.getAttribute(s_vertical[loop]);
-            TableMap.getData(s_vertical[loop]).insert(typetransverter(insertion_sequence[loop], type));
-        }
-        for(int loop=0;loop<lnList.size();loop++)
-        {
-            String type=TableMap.getAttribute(lnList.get(loop));
-            TableMap.getData(lnList.get(loop)).insert(null);
-            //insert中未提及的列值为null
-        }
+//        int Size=thisTable.getSize();
+//        TableMapping<String,String,Vertical_C> TableMap=thisTable.getTableMapping();
+//        if(s_vertical==null)
+//            s_vertical=thisTable.getListOrder().toArray(new String[0]);
+//
+//        if(insertion_sequence.length!=s_vertical.length)
+//            throw new ILlength_error();
+//        setData(TableMap);
+//        checkListname_beingness(s_vertical);
+//        cleanData();
+//        thisTable.reSize(Size+1);
+//        thisTable.realloc();
+//        LinkedList<String> lnList=new LinkedList<>(TableMap.keySet());
+//        //for(int loop=0;loop<s_vertical.length;loop++)
+//        //如果采用上述循环方式的话，必然导致表中各个列的长度不一致（有些列进行了insert而另一些列没有进行insert），
+//        //必须将表中所有的列都循环一次，但是要注意s_vertical当中的顺序和原表列顺序未必相同。
+//        for(int loop=0;loop<s_vertical.length;loop++)
+//        {
+//            String type;
+//            lnList.remove(s_vertical[loop]);
+//            type=TableMap.getAttribute(s_vertical[loop]);
+//            TableMap.getData(s_vertical[loop]).insert(typetransverter(insertion_sequence[loop], type));
+//        }
+//        for(int loop=0;loop<lnList.size();loop++)
+//        {
+//            String type=TableMap.getAttribute(lnList.get(loop));
+//            TableMap.getData(lnList.get(loop)).insert(null);
+//            //insert中未提及的列值为null
+//        }
     }
 
     public void update(String[] s_vertical,String[] s_condition,String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition) throws HaveNoListName_error, Type_not_exist, Exception
     {//set s_vertical=s_condition
         //where c_vertical s_condition e_condition
-        int Size=thisTable.getSize();
-        TableMapping<String,String,Vertical_column_old> TableMap=thisTable.getTableMapping();
-        Integer[] samelocal;
-        setData(TableMap);
-        checkListname_beingness(s_vertical);
-        if(f_vertical==null)
-        {
-            samelocal=new Integer[Size];
-            for(int loop=0;loop<Size;loop++)
-                samelocal[loop]=loop;
-        }
-        else
-        {
-            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);
-        }
-        for(int loop=0;loop<s_vertical.length;loop++)
-        {
-            String type=TableMap.getAttribute(s_vertical[loop]);
-            TableMap.getData(s_vertical[loop]).update(samelocal,typetransverter(s_condition[loop], type));
-        }
-        cleanData();
+//        int Size=thisTable.getSize();
+//        TableMapping<String,String,Vertical_C> TableMap=thisTable.getTableMapping();
+//        Integer[] samelocal;
+//        setData(TableMap);
+//        checkListname_beingness(s_vertical);
+//        if(f_vertical==null)
+//        {
+//            samelocal=new Integer[Size];
+//            for(int loop=0;loop<Size;loop++)
+//                samelocal[loop]=loop;
+//        }
+//        else
+//        {
+//            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);
+//        }
+//        for(int loop=0;loop<s_vertical.length;loop++)
+//        {
+//            String type=TableMap.getAttribute(s_vertical[loop]);
+//            TableMap.getData(s_vertical[loop]).update(samelocal,typetransverter(s_condition[loop], type));
+//        }
+//        cleanData();
     }
 
     public void delete(/*String[] s_vertical,*/String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition) throws OutofMemory_error, Type_not_exist, Exception
     {
-        int Size=thisTable.getSize();
-        TableMapping<String,String,Vertical_column_old> TableMap=thisTable.getTableMapping();
-        Integer[] samelocal;
-        setData(TableMap);
-        if(f_vertical==null)
-        {
-            samelocal=new Integer[Size];
-            for(int loop=0;loop<Size;loop++)
-                samelocal[loop]=loop;
-        }
-        else
-        {
-            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);//最终的where条件选择出来的结果
-        }
-        String[] listnames=thisTable.getListOrder().toArray(new String[0]);
-        for(int loop=0;loop<listnames.length;loop++)
-        {
-            TableMap.getData(listnames[loop]).delete(samelocal);
-        }
-        thisTable.reSize(Size-samelocal.length);
-        thisTable.realloc();
-        cleanData();
+//        int Size=thisTable.getSize();
+//        TableMapping<String,String,Vertical_C> TableMap=thisTable.getTableMapping();
+//        Integer[] samelocal;
+//        setData(TableMap);
+//        if(f_vertical==null)
+//        {
+//            samelocal=new Integer[Size];
+//            for(int loop=0;loop<Size;loop++)
+//                samelocal[loop]=loop;
+//        }
+//        else
+//        {
+//            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);//最终的where条件选择出来的结果
+//        }
+//        String[] listnames=thisTable.getListOrder().toArray(new String[0]);
+//        for(int loop=0;loop<listnames.length;loop++)
+//        {
+//            TableMap.getData(listnames[loop]).delete(samelocal);
+//        }
+//        thisTable.reSize(Size-samelocal.length);
+//        thisTable.realloc();
+//        cleanData();
     }
 
 
     public Table select(Table table,String[] s_vertical,String[] newnames,String[] linkmark,String[] f_vertical,String[] f_option,String[] f_condition) throws Exception //设定查找行名称、查找条件
     {//例如 where c_vertical=e_condition('=' is s_condition)，然后根据表中保存的数据类型进行一次强制转换
-        if(s_vertical==null&f_vertical==null)
-            return table;//如果select *，那么就打印自身
-
-        TableMapping<String,String,Vertical_column_old> tm=table.getTableMapping();
-        setData(tm);
-        if(s_vertical==null)
-        {
-            s_vertical=table.getListOrder().toArray(new String[0]);
-            newnames=table.getListOrder().toArray(new String[0]);
-        }
-        else
-        {
-            checkListname_beingness(s_vertical);
-            //由于制定执行计划的时候newnames不是简单置空，所以这里也要相应的改变判断方式
-            for(int loop=0;loop<s_vertical.length;loop++)
-                if(newnames[loop]==null)
-                    newnames[loop]=s_vertical[loop];
-        }
-
-        Vertical_column_old[] temp;
-        Integer[] samelocal;
-        if(f_vertical==null)
-        {
-            samelocal=new Integer[table.getSize()];
-            for(int loop=0;loop<table.getSize();loop++)
-                samelocal[loop]=loop;
-            temp=Vertical_checkout(s_vertical,newnames, samelocal);
-        }
-        else
-        {
-            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);//最终的where条件选择出来的结果
-            temp=Vertical_checkout(s_vertical,newnames, samelocal);
-        }
-        cleanData();
-        return Table.setTable("tempselect",newnames,tm.getAttributes(s_vertical),temp);//重新生成Table对象并返回
+//        if(s_vertical==null&f_vertical==null)
+//            return table;//如果select *，那么就打印自身
+//
+//        TableMapping<String,String,Vertical_C> tm=table.getTableMapping();
+//        setData(tm);
+//        if(s_vertical==null)
+//        {
+//            s_vertical=table.getListOrder().toArray(new String[0]);
+//            newnames=table.getListOrder().toArray(new String[0]);
+//        }
+//        else
+//        {
+//            checkListname_beingness(s_vertical);
+//            //由于制定执行计划的时候newnames不是简单置空，所以这里也要相应的改变判断方式
+//            for(int loop=0;loop<s_vertical.length;loop++)
+//                if(newnames[loop]==null)
+//                    newnames[loop]=s_vertical[loop];
+//        }
+//
+//        Vertical_C[] temp;
+//        Integer[] samelocal;
+//        if(f_vertical==null)
+//        {
+//            samelocal=new Integer[table.getSize()];
+//            for(int loop=0;loop<table.getSize();loop++)
+//                samelocal[loop]=loop;
+//            temp=Vertical_checkout(s_vertical,newnames, samelocal);
+//        }
+//        else
+//        {
+//            samelocal = Where_find(linkmark,f_vertical,f_option,f_condition);//最终的where条件选择出来的结果
+//            temp=Vertical_checkout(s_vertical,newnames, samelocal);
+//        }
+//        cleanData();
+//        return Table.setTable("tempselect",newnames,tm.getAttributes(s_vertical),temp);//重新生成Table对象并返回
+        return null;
     }
     public void alter(String type,String[] s_vertical,String[] insertion_sequence) throws SingalList_error,HaveNoListName_error, NullTypePoint_error, Exception
     {
-        setData(thisTable.getTableMapping());
-        if(type.equals("del"))
-        {
-            checkListname_beingness(s_vertical);
-            for(int loop=0;loop<s_vertical.length;loop++)
-            {
-                thisTable.getListOrder().remove(s_vertical[loop]);
-                thisTable.getTableMapping().remove(s_vertical[loop]);
-            }
-        }
-        else if(type.equals("add"))
-        {
-            try{
-                checkListname_beingness(s_vertical);
-                throw new Exception("该列已经存在");
-            }
-            catch(HaveNoListName_error er){
-                for(int loop=0;loop<s_vertical.length;loop++)
-                {
-                    Vertical_column_old vc=getVertical_column(insertion_sequence[loop]);
-                    vc.realloc(thisTable.getMem());
-                    vc.alterSize(thisTable.getSize());
-                    thisTable.getListOrder().add(s_vertical[loop]);
-                    thisTable.getTableMapping().put(s_vertical[loop],vc.getVertical_name(),vc);
-                }
-            }
-        }
-        cleanData();
+//        setData(thisTable.getTableMapping());
+//        if(type.equals("del"))
+//        {
+//            checkListname_beingness(s_vertical);
+//            for(int loop=0;loop<s_vertical.length;loop++)
+//            {
+//                thisTable.getListOrder().remove(s_vertical[loop]);
+//                thisTable.getTableMapping().remove(s_vertical[loop]);
+//            }
+//        }
+//        else if(type.equals("add"))
+//        {
+//            try{
+//                checkListname_beingness(s_vertical);
+//                throw new Exception("该列已经存在");
+//            }
+//            catch(HaveNoListName_error er){
+//                for(int loop=0;loop<s_vertical.length;loop++)
+//                {
+//                    Vertical_C vc=getVertical_column(insertion_sequence[loop]);
+//                    vc.realloc(thisTable.getMem());
+//                    vc.alterSize(thisTable.getSize());
+//                    thisTable.getListOrder().add(s_vertical[loop]);
+//                    thisTable.getTableMapping().put(s_vertical[loop],vc.getVertical_name(),vc);
+//                }
+//            }
+//        }
+//        cleanData();
     }
 
 

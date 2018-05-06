@@ -14,7 +14,7 @@ import m_Exception.type.Type_not_exist;
 /**
  *
  * @author rkppo
- * µ¥ÀıÄ£Ê½£º¾²Ì¬ÄÚ²¿Àà·½Ê½£¬¿ÉÒÔÑÓ³Ù¼ÓÔØ£¬Ö»ÔÚ½¨±í»òÕß¼ÓÔØ±íµÄÊ±ºòÊ¹ÓÃ
+ * å•ä¾‹æ¨¡å¼ï¼šé™æ€å†…éƒ¨ç±»æ–¹å¼ï¼Œå¯ä»¥å»¶è¿ŸåŠ è½½ï¼Œåªåœ¨å»ºè¡¨æˆ–è€…åŠ è½½è¡¨çš„æ—¶å€™ä½¿ç”¨
  */
 public class Vertical_Factory {
     
@@ -32,6 +32,7 @@ public class Vertical_Factory {
     {
         this.trans = new Transelementtype();
         aft=new arrayFt(trans);
+        sft=new setFt(trans);
     }
     public static Vertical_Column getVertical_column(String vertical_name,String vertical_type,String data_structure) throws Type_not_exist, NullTypePoint_error
     {
@@ -40,20 +41,22 @@ public class Vertical_Factory {
             case "array":
                 return Factory.VF.aft.getVertical(vertical_name,vertical_type);
             case "set":
-            case "list":
+                return Factory.VF.sft.getVertical(vertical_name,vertical_type);
+//            case "list":
             default:
                 throw new Type_not_exist();
         }
     }
     public static Vertical_Column setVertical_column(String[] vertical_nodes,String vertical_name,String vertical_type,boolean isIndex,String data_structure) throws NullTypePoint_error, Type_not_exist,insertException
-    {   //Ä¿Ç°Ö»Ö§³Öint£¬doubleºÍStringÈıÖÖÀàĞÍ
+    {   //ç›®å‰åªæ”¯æŒintï¼Œdoubleå’ŒStringä¸‰ç§ç±»å‹
         //table_handling th=new table_handling(backstage,new check_StringtoNumber());
         switch(data_structure)
         {
             case "array":
                 return Factory.VF.aft.setVertical(vertical_nodes,vertical_name,vertical_type,isIndex);
             case "set":
-            case "list":
+                return Factory.VF.sft.setVertical(vertical_nodes,vertical_name,vertical_type,isIndex);
+//            case "list":
             default:
                 throw new Type_not_exist();
         }

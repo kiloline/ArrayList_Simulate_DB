@@ -17,13 +17,13 @@ import java.util.StringTokenizer;
  * @author rkppo
  */
 public class Expression {
-    private ArrayList expression = new ArrayList();// ´æ´¢ÖĞĞò±í´ïÊ½    
+    private ArrayList expression = new ArrayList();// å­˜å‚¨ä¸­åºè¡¨è¾¾å¼    
    
-    private ArrayList right = new ArrayList();// ´æ´¢ÓÒĞò±í´ïÊ½    
+    private ArrayList right = new ArrayList();// å­˜å‚¨å³åºè¡¨è¾¾å¼    
    
-    private String result;// ½á¹û    
+    private String result;// ç»“æœ    
    
-    // ÒÀ¾İÊäÈëĞÅÏ¢´´½¨¶ÔÏó£¬½«ÊıÖµÓë²Ù×÷·û·ÅÈëArrayListÖĞ    
+    // ä¾æ®è¾“å…¥ä¿¡æ¯åˆ›å»ºå¯¹è±¡ï¼Œå°†æ•°å€¼ä¸æ“ä½œç¬¦æ”¾å…¥ArrayListä¸­    
     private Expression(String input) {    
         StringTokenizer st = new StringTokenizer(input, "+-*/()", true);    
         while (st.hasMoreElements()) { 
@@ -32,7 +32,7 @@ public class Expression {
         }
     }
    
-    // ½«ÖĞĞò±í´ïÊ½×ª»»ÎªÓÒĞò±í´ïÊ½
+    // å°†ä¸­åºè¡¨è¾¾å¼è½¬æ¢ä¸ºå³åºè¡¨è¾¾å¼
     private void toRight() { 
         Stacks aStack = new Stacks();  
         String operator;
@@ -85,7 +85,7 @@ public class Expression {
         }    
     }    
    
-    // ¶ÔÓÒĞò±í´ïÊ½½øĞĞÇóÖµ    
+    // å¯¹å³åºè¡¨è¾¾å¼è¿›è¡Œæ±‚å€¼    
     private void getResult() {    
         this.toRight();
         for(int i=0;i<right.size();i++){

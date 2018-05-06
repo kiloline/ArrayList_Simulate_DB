@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sun.istack.internal.NotNull;
 import m_Exception.runtime.insertException;
 
 /**
@@ -20,7 +21,7 @@ public abstract class Vertical_Column<E> implements Runnable,Serializable
 {
     protected volatile Vertical_Node<E>[] elements;  //作为整个列统一存储的基石
     protected Exception e;
-    protected String Vertical_name;
+    protected String Vertical_name;  //列名
     protected String Vertical_type;  //列类型的字符表示
     protected int Size,mem; //Size是已经使用的空间，mem是分配的内存块数
     protected HashMap<E,List<Integer>> index;//反向普通索引
@@ -80,7 +81,7 @@ public abstract class Vertical_Column<E> implements Runnable,Serializable
      * @param p_c
      * @return 所有checkout默认都以Vertical_Array来返回，不带索引，Size=mem
      */
-    public abstract Vertical_Column<E> checkout(Integer... p_c);
+    public abstract Vertical_Column<E> checkout(@NotNull String newVerticalName, Integer... p_c);
     public void realloc(int newmem) throws OutOfMemoryError {
         int loopmax;
         if(this.Size>newmem)
@@ -92,9 +93,13 @@ public abstract class Vertical_Column<E> implements Runnable,Serializable
         System.arraycopy(temp,0,elements,0,temp.length);
         this.mem=newmem;
     }
-    
+
     public abstract void initIndex();
     public abstract void dropIndex();
+
+    public Boolean isIndex() {
+        return this.isIndex;
+    }
     //@Override
     //public int hashCode()
     //{

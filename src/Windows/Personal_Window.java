@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 /**
  * @author BFD-501
- * ÓÃ»§µÄÃ¿Ò»ĞĞÊäÈë¶¼ÒªÈËÎªµÄÔÚºóÃæ¼ÓÉÏÒ»¸ö'\n'À´±£Ö¤Ê¶±ğÒ»ÖÂĞÔ
+ * ç”¨æˆ·çš„æ¯ä¸€è¡Œè¾“å…¥éƒ½è¦äººä¸ºçš„åœ¨åé¢åŠ ä¸Šä¸€ä¸ª'\n'æ¥ä¿è¯è¯†åˆ«ä¸€è‡´æ€§
  */
 public class Personal_Window 
 {
@@ -20,17 +20,17 @@ public class Personal_Window
     }
     
     public void inputStream()
-    {//ËùÓĞµÄ´íÎó×îÖÕÖ»ÄÜÅ×³öµ½ÕâÀïÀ´´¦Àí
+    {//æ‰€æœ‰çš„é”™è¯¯æœ€ç»ˆåªèƒ½æŠ›å‡ºåˆ°è¿™é‡Œæ¥å¤„ç†
         int inputline=1;
-        String temp;//ÓÃÕâ¸ö±äÁ¿´¦Àí"--"×¢ÊÍ
+        String temp;//ç”¨è¿™ä¸ªå˜é‡å¤„ç†"--"æ³¨é‡Š
         StringBuffer toSQL=new StringBuffer();
         System.out.print("SQL>");
         temp=scanf.nextLine();
-        temp=temp.split("--")[0];//Ò»ĞĞÖ®ÄÚ£¬½«µÚÒ»¸ö"--"Ö®ºóµÄËùÓĞ×Ö·ûÈ«²¿½Øµô£¬Ö»Áô"--"Ö®Ç°µÄ²¿·Ö
+        temp=temp.split("--")[0];//ä¸€è¡Œä¹‹å†…ï¼Œå°†ç¬¬ä¸€ä¸ª"--"ä¹‹åçš„æ‰€æœ‰å­—ç¬¦å…¨éƒ¨æˆªæ‰ï¼Œåªç•™"--"ä¹‹å‰çš„éƒ¨åˆ†
         toSQL.append(temp);
-        if(toSQL.toString().equals("exit"))//ÍË³öÃüÁî
+        if(toSQL.toString().equals("exit"))//é€€å‡ºå‘½ä»¤
             System.exit(0);
-        if(temp.indexOf("^c")!=-1)//¼Ù×°ÕâÀï¾ÍÊÇCTRL+C
+        if(temp.indexOf("^c")!=-1)//å‡è£…è¿™é‡Œå°±æ˜¯CTRL+C
                 return;
         if(toSQL.length()==0)
             return;
@@ -39,9 +39,9 @@ public class Personal_Window
             System.out.print(inputline+"  >");
             toSQL.append('\n');
             temp=scanf.nextLine();
-            if(temp.indexOf("^c")!=-1)//¼Ù×°ÕâÀï¾ÍÊÇCTRL+C
+            if(temp.indexOf("^c")!=-1)//å‡è£…è¿™é‡Œå°±æ˜¯CTRL+C
                 return;
-            temp=temp.split("--")[0];//Ò»ĞĞÖ®ÄÚ£¬½«µÚÒ»¸ö"--"Ö®ºóµÄËùÓĞ×Ö·ûÈ«²¿½Øµô£¬Ö»Áô"--"Ö®Ç°µÄ²¿·Ö
+            temp=temp.split("--")[0];//ä¸€è¡Œä¹‹å†…ï¼Œå°†ç¬¬ä¸€ä¸ª"--"ä¹‹åçš„æ‰€æœ‰å­—ç¬¦å…¨éƒ¨æˆªæ‰ï¼Œåªç•™"--"ä¹‹å‰çš„éƒ¨åˆ†
             toSQL.append(temp);
             inputline++;
         }

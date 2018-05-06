@@ -20,5 +20,5 @@ public class linkkedlist_addfirstorlast
         t=l.toArray(new String[0]);
         for(int loop=0;loop<t.length;loop++)
             System.out.println(t[loop]);
-    }//¿É¼ûÖ»ÓÐÔÚaddLastµÄÇé¿öÏÂ£¬List×ª³ÉµÄÊý×é²ÅÄÜ°´ÕÕÌí¼ÓÊ±µÄË³Ðò°´ÕÕ0123¡­¡­ÅÅÁÐ
+    }//å¯è§åªæœ‰åœ¨addLastçš„æƒ…å†µä¸‹ï¼ŒListè½¬æˆçš„æ•°ç»„æ‰èƒ½æŒ‰ç…§æ·»åŠ æ—¶çš„é¡ºåºæŒ‰ç…§0123â€¦â€¦æŽ’åˆ—
 }

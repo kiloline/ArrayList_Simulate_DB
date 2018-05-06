@@ -57,4 +57,13 @@ public class Word
     {
         return this.isMark;
     }
+
+    @Override
+    public String toString()
+    {
+        if(substance!=null)
+            return substance;
+        else
+            return name;
+    }
 }

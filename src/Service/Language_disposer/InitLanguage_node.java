@@ -127,6 +127,11 @@ public class InitLanguage_node
         stop.add("where");
         stop.add("union");
         stop.add("order");
+        stop.add("update");
+        stop.add("delete");
+        stop.add("group");
+        stop.add("order");
+
         return stop;
     }
     

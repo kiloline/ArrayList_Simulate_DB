@@ -37,7 +37,7 @@ public class control_writer extends Xml_Writer
         files[files.length-1]=rootpath+"\\"+filename+".dbt.xml";
         
         SHA256=verifier_file(files);
-        //ÏÂÃæ½«×Ö·ûÒıÓÃÌæ»»³ÉÊµÌåÒıÓÃ
+        //ä¸‹é¢å°†å­—ç¬¦å¼•ç”¨æ›¿æ¢æˆå®ä½“å¼•ç”¨
         //SHA256=SHA256.replace("&#", "&amp;#");
         SHA256=SHA256.replace("&", "&amp;");
         SHA256=SHA256.replace("<", "&lt;");
@@ -49,7 +49,7 @@ public class control_writer extends Xml_Writer
         tstf.attribute("Hash").setValue(SHA256);
         tstf.attribute("tablespace").setValue(Integer.toString(files.length));
         this.save(new File(ctfpath));
-        //Ê©¹¤ÖĞ
+        //æ–½å·¥ä¸­
     }
     public void delLogfile(String filename) throws Exception
     {
@@ -58,7 +58,7 @@ public class control_writer extends Xml_Writer
     public void delTBSfile(String ctfpath,String filename) throws Exception
     {
         Element toDel = null;
-        boolean find=false;//Í¬Ê±Ê¹ÓÃ
+        boolean find=false;//åŒæ—¶ä½¿ç”¨
         Element tstf=root.element("tstf");
         String SHA256;
         Iterator<Element> iter=tstf.elements().iterator();
@@ -82,7 +82,7 @@ public class control_writer extends Xml_Writer
             files[loop]=file_list.get(loop).getText();
         
         SHA256=verifier_file(files);
-        //ÏÂÃæ½«×Ö·ûÒıÓÃÌæ»»³ÉÊµÌåÒıÓÃ
+        //ä¸‹é¢å°†å­—ç¬¦å¼•ç”¨æ›¿æ¢æˆå®ä½“å¼•ç”¨
         SHA256=SHA256.replace("&#", "&amp;#");
         SHA256=SHA256.replace("&", "&amp;");
         SHA256=SHA256.replace("<", "&lt;");

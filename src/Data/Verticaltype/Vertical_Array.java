@@ -2,6 +2,8 @@ package Data.Verticaltype;
 
 import java.util.HashMap;
 import java.util.Iterator;
+
+import com.sun.istack.internal.NotNull;
 import m_Exception.runtime.insertException;
 
 import java.util.LinkedList;
@@ -245,12 +247,12 @@ public class Vertical_Array<E> extends Vertical_Column<E> {
     }
 
     @Override
-    public Vertical_Array<E> checkout(Integer... p_c) {
+    public Vertical_Array<E> checkout(@NotNull String newVerticalName, Integer... p_c) {
         Vertical_Array<E> Return;
         try {
-            Return=new Vertical_Array<E>(this.getindex_elements(p_c),Vertical_name,Vertical_type,false);
+            Return=new Vertical_Array<E>(this.getindex_elements(p_c),newVerticalName,Vertical_type,false);
         } catch (insertException ex) {
-            Return=new Vertical_Array<E>(Vertical_name,this.Vertical_type);
+            Return=new Vertical_Array<E>(newVerticalName,this.Vertical_type);
         }
         return Return;
     }

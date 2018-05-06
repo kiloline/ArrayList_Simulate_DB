@@ -1,12 +1,13 @@
 package Service.Filereader;
 
+import Data.Verticaltype.Vertical_Column;
 import Data.classes.Table;
-import Data.Verticaltype.Vertical_column_old;
 import Service.Fileloader.Table_File;
 import Service.Handling.table_handling;
-import java.util.List;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+
+import java.util.List;
 
 /**
  *
@@ -22,7 +23,7 @@ public class table_reader extends Xml_Reader
     public Table getTable(table_handling th) throws Exception
     {
         List<Element> data_list=super.getElements("list");
-        Vertical_column_old[] vc=new Vertical_column_old[data_list.size()];
+        Vertical_Column[] vc=new Vertical_Column[data_list.size()];
         String tablename=super.getRoot().attributeValue("tbname");
         String[] ln=new String[data_list.size()];
         String[] lt=new String[data_list.size()];
@@ -34,7 +35,7 @@ public class table_reader extends Xml_Reader
             for(int loopi=0;loopi<vertical_nodes.size();loopi++)
             {
                 String toNode;
-                if(vertical_nodes.get(loopi).attributeValue("isNull").equals("Null"))
+                if(vertical_nodes.get(loopi).attributeValue("isNull").equals("true"))
                     toNode=null;
                 else
                     toNode=vertical_nodes.get(loopi).getText();
@@ -42,7 +43,9 @@ public class table_reader extends Xml_Reader
             }
             ln[loop]=list.attributeValue("name");
             lt[loop]=list.attributeValue("type");
-            vc[loop]=th.setVertical_column(nodedata,list.attributeValue("type"));
+            vc[loop]=th.setVertical_column(nodedata,ln[loop],list.attributeValue("type"),
+                    new Boolean(list.attributeValue("isIndex")),
+                    list.attributeValue("data_structure"));
         }
         return Table.setTable(tablename,ln, lt, vc);
     }

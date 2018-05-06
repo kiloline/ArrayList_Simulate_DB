@@ -1,10 +1,16 @@
 package Utils.Math.Impl;
 
 import Utils.Math.SingleNumber;
+import Utils.Math.utilClass;
 
 public class integerc implements SingleNumber{
     @Override
     public Number sqrt(Number right) {
-        return Math.sqrt(right.intValue());
+        return utilClass.Sqrt(right.doubleValue());
+    }
+
+    @Override
+    public Number abs(Number right) {
+        return Math.abs(right.intValue());
     }
 }

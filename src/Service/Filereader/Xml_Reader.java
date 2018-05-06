@@ -17,8 +17,8 @@ import org.dom4j.io.SAXReader;
 /**
  *
  * @author BFD-501
- * ¸ÃÀàÊ¹ÓÃdom4jÀ´¶ÁÈ¡xmlÀàĞÍµÄÊı¾İÎÄ¼şºÍ¿ØÖÆÎÄ¼ş
- * ËùÓĞÓÃÀ´¶ÁÈ¡ÎÄ¼şµÄ×é¼ş¶¼ÊÇ»ùÀàXml_ReaderµÄ×ÓÀà
+ * è¯¥ç±»ä½¿ç”¨dom4jæ¥è¯»å–xmlç±»å‹çš„æ•°æ®æ–‡ä»¶å’Œæ§åˆ¶æ–‡ä»¶
+ * æ‰€æœ‰ç”¨æ¥è¯»å–æ–‡ä»¶çš„ç»„ä»¶éƒ½æ˜¯åŸºç±»Xml_Readerçš„å­ç±»
  */
 public abstract class Xml_Reader 
 {
@@ -82,17 +82,17 @@ public abstract class Xml_Reader
             return false;
     }
     
-    private Element select_ELE(Element e,String e_name)//¸ù¾İe_name£¬ÕÒµ½º¬ÓĞe_name½ÚµãµÄ¸¸½Úµã
+    private Element select_ELE(Element e,String e_name)//æ ¹æ®e_nameï¼Œæ‰¾åˆ°å«æœ‰e_nameèŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹
     {
-        List<Element> listElement=e.elements();//ËùÓĞÒ»¼¶×Ó½ÚµãµÄlist  
+        List<Element> listElement=e.elements();//æ‰€æœ‰ä¸€çº§å­èŠ‚ç‚¹çš„list  
         //for(Element temp:listElement)
         for(int loop=0;loop<listElement.size();loop++)
-        {//±éÀúËùÓĞÒ»¼¶×Ó½Úµã  
+        {//éå†æ‰€æœ‰ä¸€çº§å­èŠ‚ç‚¹  
             Element temp=listElement.get(loop);
             if(temp.getName().equals(e_name))
                 return e;
             else
-                select_ELE(temp,e_name);//µİ¹é  
+                select_ELE(temp,e_name);//é€’å½’  
         }
         return null;
     }
