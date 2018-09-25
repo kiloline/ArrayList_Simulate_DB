@@ -6,7 +6,7 @@ import m_Exception.data.NLlength_error;
 import Utils.Check.check_StringtoNumber;
 import Data.Verticaltype.Vertical_Column;
 import Data.Vessel.TableMapping;
-import Service.Handling.table_handling;
+import Service_pkg.Handling.table_handling;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -258,7 +258,7 @@ public class Table implements Serializable{
         }
     }
 
-    public List<String> checkselectlist(LinkedList<String> s_vertical) {
+    public List<String> checkselectlist(List<String> s_vertical) {
         ArrayList<String> Return = new ArrayList<>();
 
         Return.addAll(listnames);
@@ -271,5 +271,9 @@ public class Table implements Serializable{
 //                Return.add(s_vertical[loop]);
 //        }
         return Return;
+    }
+
+    public boolean checkselectlist(String s_vertical) {
+        return tm.getAttribute(s_vertical)!=null;
     }
 }

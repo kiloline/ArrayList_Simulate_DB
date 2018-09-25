@@ -29,6 +29,7 @@ public class Vertical_Set<E> extends Vertical_Column<E>{
     LinkedList<Integer> empty_array_local;
     HashMap<E,Integer> singal; //element,array_local
     HashMap<Integer,Integer> Addr_mapping; //insert_local,array_local ，问题是这个结构很难做到实时更新
+    HashMap<E,Integer> Addr_element; //element,insert_local ,用空间换取时间的做法
     
 
     public Vertical_Set(String Vertical_name, String vertical_type) {
@@ -38,14 +39,15 @@ public class Vertical_Set<E> extends Vertical_Column<E>{
         singal=new HashMap<>();
         empty_array_local=new LinkedList<>();
         empty_array_local.add(0);
+        Addr_mapping=new HashMap<>();
     }
-    public Vertical_Set(LinkedList<E> newelement, String Vertical_name, String vertical_type, boolean index) throws insertException {//尚未完成的初始化方法
+    public Vertical_Set(LinkedList<Vertical_Node> newelement, String Vertical_name, String vertical_type, boolean index) throws insertException {//尚未完成的初始化方法
         this(Vertical_name, vertical_type);
         realloc(newelement.size()+1);
-        Iterator<E> initele=newelement.listIterator();
+        Iterator<Vertical_Node> initele=newelement.listIterator();
         for(int loop=1;loop<mem;loop++)
         {//此时的循环次数应当和newelement的长度正好一致
-            E e=initele.next();
+            E e= (E) initele.next().getelement();
             empty_array_local.add(loop);
             insert(e);//这里如果有插入错误，那么至少整张表的载入应当崩溃处理
         }
@@ -53,15 +55,17 @@ public class Vertical_Set<E> extends Vertical_Column<E>{
     }
 
     @Override
-    public E getindex_element(int index) {
-        return elements[this.linklocal2arraylocal(index)].getelement();
+    public Vertical_Node getindex_element(int index) {
+        if(index>Size)
+            return null;
+        return elements[this.linklocal2arraylocal(index)];
     }
 
     @Override
-    public LinkedList<E> getindex_elements(Integer... index) {
+    public LinkedList<Vertical_Node> getindex_elements(Integer... index) {
         //Arrays.sort(index); //应该所有传入的次序都是由小到大的，这个排序暂时不启用
         Vertical_Node<E> node=head;
-        LinkedList<E> Return = new LinkedList<>();
+        LinkedList<Vertical_Node> Return = new LinkedList<>();
         int loopi=0;
         for(int loop=0;loop<index.length;loop++)
         {
@@ -71,12 +75,12 @@ public class Vertical_Set<E> extends Vertical_Column<E>{
     }
 
     @Override
-    public LinkedList<E> getAll() {
+    public LinkedList<Vertical_Node> getAll() {
         Vertical_Node<E> node=head;
-        LinkedList<E> Return = new LinkedList<>();
+        LinkedList<Vertical_Node> Return = new LinkedList<>();
          while(node.getNextNode()!=null)
          {
-             Return.add(node.getelement());
+             Return.add(node);
              node=node.getNextNode();
          }
          return Return;
@@ -110,6 +114,7 @@ public class Vertical_Set<E> extends Vertical_Column<E>{
             this.empty_array_local.addFirst(local);
             throw new insertException("违反了唯一约束");
         }
+        Addr_mapping.put(this.Size,local);
         Size++;
         return insert;
     }

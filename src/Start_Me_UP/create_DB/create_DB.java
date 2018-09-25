@@ -1,12 +1,8 @@
 package Start_Me_UP.create_DB;
 
-import Service.FileWriter.Xml_Writer;
+import Service_pkg.FileWriter.Xml_Writer;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import static java.lang.System.exit;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -28,7 +24,7 @@ public class create_DB
         byte[] codechange;
         try {
             prop=new Properties();
-            prop.load(new FileInputStream(new File("src/Service/db_env_conf.properties")));
+            prop.load(new FileInputStream(new File("src/Service_pkg/db_env_conf.properties")));
             Encoding=prop.getProperty("Encoding");
             System_Encode=System.getProperty("sun.jnu.encoding");
         } catch (Exception ex) {
@@ -36,7 +32,7 @@ public class create_DB
             Encoding="GBK";
         }
         scan=new Scanner(System.in);
-        System.out.println("ÇëÊäÈëÒª´´½¨Êý¾Ý¿âÎÄ¼þµÄ±£´æÎ»ÖÃ£º");
+        System.out.println("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ä¼ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Î»ï¿½Ã£ï¿½");
         rootpath=scan.next();
         File rootdir=new File(rootpath);
         if(!rootdir.isDirectory())//!rootdir.exists()&&
@@ -75,14 +71,14 @@ public class create_DB
     
     public static void main(String[] args)
     {
-        System.out.println("½«»á´´½¨Êý¾Ý¿â¡­");
+        System.out.println("ï¿½ï¿½ï¿½á´´ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿â¡­");
         Scanner scanf=new Scanner(System.in);
         String dbname;
-        System.out.println("ÇëÊäÈëÒª´´½¨Êý¾Ý¿âµÄÃû³Æ£º");
+        System.out.println("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½");
         //dbname = scanf.next();
         dbname="zhzm";
         String rootPath;
-        System.out.println("ÇëÊäÈëÒª´´½¨Êý¾Ý¿âÎÄ¼þµÄ±£´æÎ»ÖÃ£º");
+        System.out.println("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ä¼ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Î»ï¿½Ã£ï¿½");
         //rootPath = scanf.next();
         rootPath="E:\\db\\tksj";
         create_DB cdb=new create_DB(dbname,rootPath);

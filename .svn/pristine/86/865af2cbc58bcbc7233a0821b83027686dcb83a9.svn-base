@@ -1,6 +1,0 @@
-listlength=15
-HASHmethod=MD5
-detectHash=true
-Encoding=GBK
-LogSize=100
-Execcache=close

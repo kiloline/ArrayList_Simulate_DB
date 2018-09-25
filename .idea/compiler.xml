@@ -7,12 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ArrayList_Simuiate_5p2_alpha" />
-        <module name="ArrayList_Simuiate_5p2_alpha (1)" />
-        <module name="ArrayList_Simuiate_5p2_alpha (2)" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="ArrayList_Simuiate_5p2_alpha (1)" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

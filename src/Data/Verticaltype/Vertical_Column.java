@@ -5,12 +5,13 @@
  */
 package Data.Verticaltype;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.sun.istack.internal.NotNull;
+import m_Exception.runtime.deepCloneException;
 import m_Exception.runtime.insertException;
 
 /**
@@ -19,6 +20,7 @@ import m_Exception.runtime.insertException;
  */
 public abstract class Vertical_Column<E> implements Runnable,Serializable
 {
+    protected static final long cloneID=369285298572941L;
     protected volatile Vertical_Node<E>[] elements;  //作为整个列统一存储的基石
     protected Exception e;
     protected String Vertical_name;  //列名
@@ -35,7 +37,7 @@ public abstract class Vertical_Column<E> implements Runnable,Serializable
         isIndex=false;
         elements=new Vertical_Node[1];
     }
-    public Vertical_Column(LinkedList<E> newelement, String Vertical_name, String vertical_type, boolean index)
+    public Vertical_Column(LinkedList<Vertical_Node> newelement, String Vertical_name, String vertical_type, boolean index)
     {
         this.Vertical_name=Vertical_name;
         this.Vertical_type=vertical_type;
@@ -43,9 +45,10 @@ public abstract class Vertical_Column<E> implements Runnable,Serializable
         //this.Size=newelement.length;
         this.mem=newelement.size()+1;
         isIndex=index;
-        elements=new Vertical_Node[mem];
-        for(int loop=0;loop<newelement.size();loop++)
-            elements[loop]=new Vertical_Node(newelement.get(loop),loop,null);
+        elements=newelement.toArray(new Vertical_Node[0]);
+//                new Vertical_Node[mem];
+//        for(int loop=0;loop<newelement.size();loop++)
+//            elements[loop]=new Vertical_Node(newelement.get(loop),loop,null);
     }
     
     public int getSize()
@@ -65,9 +68,9 @@ public abstract class Vertical_Column<E> implements Runnable,Serializable
         return mem;
     }
     
-    public abstract E getindex_element(int index);
-    public abstract LinkedList<E> getindex_elements(Integer... index);
-    public abstract LinkedList<E> getAll();
+    public abstract Vertical_Node getindex_element(int index);
+    public abstract LinkedList<Vertical_Node> getindex_elements(Integer... index);
+    public abstract LinkedList<Vertical_Node> getAll();
     protected abstract Vertical_Node<E> insert(E element) throws insertException;
     public abstract LinkedList<Vertical_Node<E>> insert(E... element) throws insertException;
     public abstract LinkedList<Vertical_Node<E>> delete(Integer... line);
@@ -100,9 +103,21 @@ public abstract class Vertical_Column<E> implements Runnable,Serializable
     public Boolean isIndex() {
         return this.isIndex;
     }
-    //@Override
-    //public int hashCode()
-    //{
-        //return new HashCodeBuilder().append(Vertical_type).append(Size).append(mem).append(isIndex).toHashCode();
-    //}
+
+    public Vertical_Column<E> deepclone() throws deepCloneException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(this);
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            return (Vertical_Column)ois.readObject();
+        } catch (IOException e1) {
+            throw new deepCloneException("没有权限获取被复制的列。");
+        } catch (ClassNotFoundException e1) {
+            throw new deepCloneException("被复制的列不存在，请检查并发操作。");
+        }
+    }
 }

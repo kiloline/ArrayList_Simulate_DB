@@ -1,4 +1,4 @@
-import Service.env_properties;
+import Service_pkg.env_properties;
 
 public class envinit {
     public static void main(String ar[])

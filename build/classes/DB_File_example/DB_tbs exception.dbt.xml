@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<root tbsname="public" SHA-256="123" table="3">
-    <file_path filename="student" >C:/dbtemp/student.xml</file_path>
-    <file_path filename="teacher" >C:/dbtemp/teacher.xml</file_path>
-    <file_path filename="school" >C:/dbtemp/school.xml</file_path>
-</root>

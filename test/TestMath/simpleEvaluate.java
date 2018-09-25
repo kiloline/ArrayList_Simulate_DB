@@ -2,8 +2,8 @@ package TestMath;
 
 import Data.Numeral_Calculations.Evaluate;
 import Data.Vessel.Word;
-import Service.Language_disposer.InitLanguage_node;
-import Service.Language_disposer.Word_Segmentation_Machine;
+import Service_pkg.Language_disposer.InitLanguage_node;
+import Service_pkg.Language_disposer.Word_Segmentation_Machine;
 import org.junit.Test;
 
 import java.util.HashMap;

@@ -1,1 +1,0 @@
-搴熷純浠ｇ爜.Language_condition

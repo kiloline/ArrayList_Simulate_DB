@@ -55,6 +55,10 @@ public class Evaluate {
     }
     public void pushElement(Vertical_Node node)//按照数据表中列的类型压入数据，不接受外来类型
     {
+        if(node==null) {
+            ops.push(0);
+            return;
+        }
         switch(node.getTrueType())
         {
             case "java.lang.Double":

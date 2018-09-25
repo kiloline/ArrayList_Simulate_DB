@@ -1,9 +1,0 @@
-功能
-1.完成create insert select update的功能（已测试）
-2.完成commit，实现数据持久化
-3.完成where的比较功能。
-
-语法
-1.支持"--"注释
-2.Integer,Double,String
-

@@ -1,15 +1,9 @@
 package Data.Verticaltype;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 import com.sun.istack.internal.NotNull;
 import m_Exception.runtime.insertException;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Vertical_Array<E> extends Vertical_Column<E> {
     /**
@@ -23,7 +17,7 @@ public class Vertical_Array<E> extends Vertical_Column<E> {
      *
      * @param vertical_type:E.classname
      */
-    public Vertical_Array(LinkedList<E> newelement, String vertical_name,String vertical_type, boolean index) throws insertException {
+    public Vertical_Array(LinkedList<Vertical_Node> newelement, String vertical_name,String vertical_type, boolean index) throws insertException {
         super(newelement, vertical_name,vertical_type, index);
         //realloc(newelement.length);
         if(isIndex)
@@ -31,23 +25,25 @@ public class Vertical_Array<E> extends Vertical_Column<E> {
     }
 
     @Override
-    public E getindex_element(int index) {
-        return elements[index].getelement();
+    public Vertical_Node<E> getindex_element(int index) {
+        if(index>Size)
+            return null;
+        return elements[index];
     }
 
     @Override
-    public LinkedList<E> getindex_elements(Integer... index) {
-        LinkedList<E> Return=new LinkedList<>();
+    public LinkedList<Vertical_Node> getindex_elements(Integer... index) {
+        LinkedList Return=new LinkedList<>();
         for(int loop=0;loop<index.length;loop++)
-            Return.add(this.elements[index[loop]].getelement());
+            Return.add(this.elements[index[loop]]);
         return Return;
     }
 
     @Override
-    public LinkedList<E> getAll() {
-        LinkedList<E> Return=new LinkedList<>();
+    public LinkedList<Vertical_Node> getAll() {
+        LinkedList Return=new LinkedList<>();
         for(int loop=0;loop<elements.length;loop++)
-            Return.add(this.elements[loop].getelement());
+            Return.add(this.elements[loop]);
         return Return;
     }
 
@@ -56,11 +52,8 @@ public class Vertical_Array<E> extends Vertical_Column<E> {
         Vertical_Node<E> insert=new Vertical_Node<E>(element,Size,null);
         elements[Size]=insert;
         Size++;
-        if(isIndex)
-        {
-            if(index.get(element)==null)
-                index.put(element,new LinkedList<Integer>());
-            index.get(element).add(Size);
+        if(isIndex){
+            refreshIndex(element,Size);
         }
         return insert;
     }
@@ -85,12 +78,16 @@ public class Vertical_Array<E> extends Vertical_Column<E> {
                     loopc++;
                     Return.add(elements[loop]);
                     continue;
-            }
+                }
             toReInit.add(elements[loop]);
         }
         //for(;loop<Size;loop++)
         this.elements=toReInit.toArray(elements);
         this.Size=toReInit.size();
+        if(isIndex){//最简单省力的方法莫过于直接重建索引，而且花时间去标记索引当中所有位置并且重新计算位置的操作也未必速度就快
+            index=new HashMap<>();
+            initIndex();
+        }
         return Return ;
     }
 
@@ -99,8 +96,13 @@ public class Vertical_Array<E> extends Vertical_Column<E> {
         LinkedList<Vertical_Node> Return=new LinkedList<>();
         for(int loop=0;loop<line.length;loop++)
         {
-            Return.add(this.elements[line[loop]].CopyNode());
-            this.elements[line[loop]].updateelement(element);
+            Vertical_Node<E> toUpdate=this.elements[line[loop]];
+            if(isIndex){
+                index.get(toUpdate.getelement()).remove(line[loop]);
+                refreshIndex(element,line[loop]);
+            }
+            Return.add(toUpdate.CopyNode());
+            toUpdate.updateelement(element);
         }
         return Return;
     }
@@ -286,12 +288,11 @@ public class Vertical_Array<E> extends Vertical_Column<E> {
         List<Integer> ll=index.get(element);
         if(ll==null)
         {
-            ll=new LinkedList<Integer>();
-            ll.add(indexnum);
+            ll=new ArrayList<Integer>();
             index.put(element, ll);
         }
-        else
-            ll.add(indexnum);
+
+        ll.add(indexnum);
         return true;
     }
 }

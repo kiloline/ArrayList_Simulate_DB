@@ -35,4 +35,16 @@ public class TablespaceTable_name extends Word {
     {
         return space+'.'+table;
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(obj.getClass().getName().equals(this.getClass().getName())) {
+            if(((TablespaceTable_name)obj).getSpace().equals(space) &&
+                    ((TablespaceTable_name)obj).getTable().equals(table))
+                return true;
+            else return false;
+        }
+        return false;
+    }
 }

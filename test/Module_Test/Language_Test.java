@@ -2,8 +2,8 @@ package Module_Test;
 
 import Data.Vessel.ExecutePlan_Package;
 import Data.Vessel.Word;
-import Service.Language_ExecutePlan_builder.ExecutePlan_builder;
-import Service.Language_disposer.*;
+import Service_pkg.Language_ExecutePlan_builder.ExecutePlan_builder;
+import Service_pkg.Language_disposer.*;
 import org.junit.Test;
 
 import java.util.ArrayList;
