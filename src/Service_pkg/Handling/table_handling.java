@@ -87,7 +87,7 @@ public class table_handling
                     {
                         String[] pop=EPP.popClasses();
                         LinkedList<String[]> E=EPP.getCreate();
-                        Table table=new Table(pop[1],E.get(0),E.get(1));
+                        Table table=new Table(pop[1],E.get(0),E.get(1),null);
                         backstage.call_FileSystem().add_table(pop[0], table);
                         break;
                     }

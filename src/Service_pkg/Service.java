@@ -34,8 +34,7 @@ public class Service implements Callback
     private ArrayList<String> clause_stop;
 
     private int listsize;
-    public Service(String rootpath,String db_name)
-    {
+    public Service(String rootpath,String db_name) {
         rootPath=rootpath;
         dbname=db_name;
 //        System_info=new MonitorService();//初始化系统信息类
@@ -56,9 +55,6 @@ public class Service implements Callback
         
         try {//加载数据文件
             FLG=new FileSystem_link_tree(rootPath,dbname,detectHash,th);//此处有问题，尚待改进//已修改
-        } catch (DocumentException ex) {
-            System.out.println(ex.getMessage());
-            return;
         } catch (fileReader_error ex) {
             System.out.println(ex.getMessage());
             return;

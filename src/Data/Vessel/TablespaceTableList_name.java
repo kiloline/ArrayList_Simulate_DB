@@ -25,6 +25,22 @@ public class TablespaceTableList_name extends Word {
         return this;
     }
 
+    public TablespaceTableList_name setAll(String space,String table,String list)
+    {
+        if(space!=null) {
+            this.space = space;
+            this.substance=this.space+'.';
+        }
+        if(table!=null) {
+            this.table = table;
+            this.substance=substance+this.table+'.';
+        }
+
+        this.list=list;
+        this.substance=substance+this.list;
+        return this;
+    }
+
     public String getTable() {
         return table;
     }
@@ -35,5 +51,9 @@ public class TablespaceTableList_name extends Word {
 
     public String getList() {
         return list;
+    }
+
+    public TablespaceTable_name getTTname(){
+        return new TablespaceTable_name(space,table);
     }
 }

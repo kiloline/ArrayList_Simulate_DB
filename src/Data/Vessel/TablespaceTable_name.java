@@ -9,6 +9,11 @@ public class TablespaceTable_name extends Word {
     public TablespaceTable_name(Word first) {
         super("TablespaceTable_name", "", first.getLocal()[0], first.getLocal()[1], false);
     }
+    public TablespaceTable_name(String space,String table){
+        super("TablespaceTable_name", "");
+        this.space=space;
+        this.table=table;
+    }
 
     public TablespaceTable_name setAll(Word space,Word table)
     {
@@ -31,6 +36,11 @@ public class TablespaceTable_name extends Word {
     }
 
     @Override
+    public int hashCode() {
+        return space.hashCode()+table.hashCode();
+    }
+
+    @Override
     public String toString()
     {
         return space+'.'+table;
@@ -39,6 +49,8 @@ public class TablespaceTable_name extends Word {
     @Override
     public boolean equals(Object obj)
     {
+        if(obj==null)
+            return false;
         if(obj.getClass().getName().equals(this.getClass().getName())) {
             if(((TablespaceTable_name)obj).getSpace().equals(space) &&
                     ((TablespaceTable_name)obj).getTable().equals(table))

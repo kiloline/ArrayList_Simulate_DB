@@ -26,7 +26,7 @@ public class FileSystem_link_tree {
     //根据不知名的HashMap源代码来看，HashMap.put使用的是传指针方式进行赋值，因此数组和哈希表当中的元素应当保持一致性
     private HashMap<String,Tablespace_File> tbs_name;
     //这里又是没有初始化
-    public FileSystem_link_tree(String rootpath,String dbname,boolean detectHash,table_handling th) throws DocumentException, fileReader_error, Exception
+    public FileSystem_link_tree(String rootpath,String dbname,boolean detectHash,table_handling th) throws fileReader_error, Exception
     {
         tbs_name=new HashMap<>();
         file_detection=detectHash;

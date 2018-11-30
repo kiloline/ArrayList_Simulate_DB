@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ArrayList_Simuiate_5p2_alpha" />
+        <module name="ArrayList_Simulate_DB_5p2_alpha_forUTF" />
       </profile>
     </annotationProcessing>
   </component>

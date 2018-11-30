@@ -111,36 +111,34 @@ public class Select {
             return table;//如果select *，那么就打印自身
 
         TableMapping<String,String, Vertical_Column> tm=table.getTableMapping();
-        setData(tm);
-        if(s_vertical==null)
-        {
-            s_vertical=table.getListOrder().toArray(new String[0]);
-            newnames=table.getListOrder().toArray(new String[0]);
-        }
-        else
-        {
-            checkListname_beingness(s_vertical);
-            //由于制定执行计划的时候newnames不是简单置空，所以这里也要相应的改变判断方式
-            for(int loop=0;loop<s_vertical.length;loop++)
-                if(newnames[loop]==null)
-                    newnames[loop]=s_vertical[loop];
-        }
-
-        Vertical_Column[] temp;
-        Integer[] samelocal;
-        if(f_vertical==null)
-        {
-            samelocal=new Integer[table.getSize()];
-            for(int loop=0;loop<table.getSize();loop++)
-                samelocal[loop]=loop;
-            temp=Vertical_checkout(s_vertical,newnames, samelocal);
-        }
-        else
-        {
-            samelocal = Where.where(linkmark,f_vertical,f_option,f_condition);//最终的where条件选择出来的结果
-            temp=Vertical_checkout(s_vertical,newnames, samelocal);
-        }
-        cleanData();
-        return Table.setTable("tempselect",newnames,tm.getAttributes(s_vertical),temp);//重新生成Table对象并返回
+//        if(s_vertical==null)
+//        {
+//            s_vertical=table.getListOrder().toArray(new String[0]);
+//            newnames=table.getListOrder().toArray(new String[0]);
+//        }
+//        else
+//        {
+//            checkListname_beingness(s_vertical);
+//            //由于制定执行计划的时候newnames不是简单置空，所以这里也要相应的改变判断方式
+//            for(int loop=0;loop<s_vertical.length;loop++)
+//                if(newnames[loop]==null)
+//                    newnames[loop]=s_vertical[loop];
+//        }
+//
+//        Vertical_Column[] temp;
+//        Integer[] samelocal;
+//        if(f_vertical==null)
+//        {
+//            samelocal=new Integer[table.getSize()];
+//            for(int loop=0;loop<table.getSize();loop++)
+//                samelocal[loop]=loop;
+//            temp=Vertical_checkout(s_vertical,newnames, samelocal);
+//        }
+//        else
+//        {
+//            samelocal = Where.where(linkmark,f_vertical,f_option,f_condition);//最终的where条件选择出来的结果
+//            temp=Vertical_checkout(s_vertical,newnames, samelocal);
+//        }
+        return Table.setTable("tempselect",newnames,tm.getAttributes(s_vertical),null);//重新生成Table对象并返回
     }
 }

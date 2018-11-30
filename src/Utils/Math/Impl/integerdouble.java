@@ -32,4 +32,9 @@ public class integerdouble implements DoubleNumber {
     public Number moer(Number left, Number right) {
         return left.intValue()%right.doubleValue();
     }
+
+    @Override
+    public Number pow(Number left, Number right) {
+        return null;
+    }
 }

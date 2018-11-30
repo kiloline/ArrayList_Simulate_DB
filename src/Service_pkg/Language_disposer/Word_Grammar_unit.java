@@ -8,8 +8,9 @@ import m_Exception.bracket_matching_error;
 
 import java.util.*;
 
+
 /**
- * 使用反向倒转来表示一对多关系，即Key、Value位置反转
+ * 使用反向倒转来表示一对多关系，即Key、Value位置反转.
  * 对*和=符号的特定区分
  */
 public class Word_Grammar_unit {
@@ -33,9 +34,10 @@ public class Word_Grammar_unit {
         Clause_bracketstack=new LinkedList<>();
         word_Add_Deflection=false;
     }
-    public LinkedList<Word> set_Word_Grammar_unit(LinkedList<Word> words) throws bracket_matching_error {//fugue位置矛盾，如果放在前面的话会导致非关键字识别错误，如果放在后面会导致部分关键字识别错误
+    public LinkedList<Word> set_Word_Grammar_unit(LinkedList<Word> words) throws bracket_matching_error {
+        //fugue位置矛盾，如果放在前面的话会导致非关键字识别错误，如果放在后面会导致部分关键字识别错误
         LW=new LinkedList<>();
-        for(Iterator<Word> wordIterator = words.listIterator();wordIterator.hasNext();)
+        for(Iterator<Word> wordIterator = words.listIterator(); wordIterator.hasNext();)
         {
             Word word=wordIterator.next();
             if(word_List.contains(word.getName()))//判断是否为关键字
@@ -194,7 +196,7 @@ public class Word_Grammar_unit {
     {
         String nummark=LW.getLast().getName();
         String fronttype=LW.get(LW.size()-2).getType();
-        String uppertype=LW.get(LW.size()-3).getType();
+//        String uppertype=LW.get(LW.size()-3).getType();
 //        switch(uppertype)
 //        {
 //            case "Var":

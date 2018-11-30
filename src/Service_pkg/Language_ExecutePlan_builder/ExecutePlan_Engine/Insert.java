@@ -64,8 +64,7 @@ public class Insert {
                 case "check_Mark_Link":
                     if(ewl==null)
                         ewl=new Evaluate_Word_List(w);
-                    else
-                        ewl.Add_word(w);
+                    ewl.Add_word(w);
                     break;
             }
         }

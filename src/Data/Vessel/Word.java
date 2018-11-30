@@ -22,8 +22,7 @@ public class Word
     boolean isMark;//简单表示这是一个符号而不是单词
     public Word(String c_name,String c_substance)
     {
-        name=c_name;
-        substance=c_substance;
+        this(c_name,c_substance,0,0,false);
     }
 
     /**

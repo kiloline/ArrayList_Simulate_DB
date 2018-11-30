@@ -36,4 +36,9 @@ public class integerinteger implements DoubleNumber {
     public Number moer(Number left, Number right) {
         return left.intValue()%right.intValue();
     }
+
+    @Override
+    public Number pow(Number left, Number right) {
+        return null;
+    }
 }

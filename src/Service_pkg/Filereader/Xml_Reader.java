@@ -24,13 +24,11 @@ public abstract class Xml_Reader
     Element root;
     Document document;
     SAXReader reader ;
-    LinkedList<Element> operation;
     count_HASH_code chc;
     
     public Xml_Reader() throws DocumentException
     {
         reader = new SAXReader();
-        this.operation = new LinkedList();
     }
     public void setFile(File file) throws DocumentException
     {
